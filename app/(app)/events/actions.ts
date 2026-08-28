@@ -9,6 +9,7 @@ import { generateRecommendations } from "@/lib/recommendations/gemini";
 import { saveRecommendations } from "@/lib/recommendations/save";
 import { trackValidationEvent } from "@/lib/validation-events";
 import { ageRangeForAge } from "@/lib/occasions";
+import { uploadPrivateProfileImage } from "@/lib/media";
 
 const CreateEventSchema = z.object({
   occasion_type: z.enum([
@@ -34,7 +35,8 @@ const CreateEventSchema = z.object({
   archetypes: z.array(z.string().trim().min(1).max(80)).max(15).default([]),
   interests: z.string().trim().max(2000).optional(),
   budget_tier: z.string().trim().max(40).optional(),
-  past_gifts: z.string().trim().max(2000).optional()
+  past_gifts: z.string().trim().max(2000).optional(),
+  avatar_path: z.string().trim().max(500).optional()
 });
 
 export type CreateEventInput = z.infer<typeof CreateEventSchema>;
@@ -47,6 +49,9 @@ export async function createEvent(input: CreateEventInput) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
+  if (parsed.avatar_path && !parsed.avatar_path.startsWith(`${user.id}/recipients/`)) {
+    return { error: "That recipient photo is not available to this account" };
+  }
 
   const { data: event, error: eventErr } = await supabase
     .from("events")
@@ -69,7 +74,8 @@ export async function createEvent(input: CreateEventInput) {
     archetypes: parsed.archetypes,
     interests: parsed.interests || null,
     budget_tier: parsed.budget_tier || null,
-    past_gifts: parsed.past_gifts || null
+    past_gifts: parsed.past_gifts || null,
+    avatar_path: parsed.avatar_path || null
   });
   if (profErr) {
     await supabase.from("events").delete().eq("id", event.id);
@@ -144,6 +150,9 @@ export async function updateEventProfile(eventId: string, input: CreateEventInpu
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
+  if (parsed.avatar_path && !parsed.avatar_path.startsWith(`${user.id}/recipients/`)) {
+    return { error: "That recipient photo is not available to this account" };
+  }
 
   const { data: event } = await supabase
     .from("events")
@@ -173,7 +182,8 @@ export async function updateEventProfile(eventId: string, input: CreateEventInpu
       archetypes: parsed.archetypes,
       interests: parsed.interests || null,
       budget_tier: parsed.budget_tier || null,
-      past_gifts: parsed.past_gifts || null
+      past_gifts: parsed.past_gifts || null,
+      ...(parsed.avatar_path ? { avatar_path: parsed.avatar_path } : {})
     })
     .eq("event_id", eventId);
   if (profileError) return { error: profileError.message };
@@ -181,6 +191,22 @@ export async function updateEventProfile(eventId: string, input: CreateEventInpu
   revalidatePath(`/events/${eventId}`);
   revalidatePath("/dashboard");
   return { ok: true };
+}
+
+export async function uploadRecipientPhoto(formData: FormData) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated" };
+
+  const file = formData.get("photo");
+  if (!(file instanceof File)) return { error: "Choose a photo to upload" };
+
+  try {
+    const path = await uploadPrivateProfileImage(user.id, "recipients", file);
+    return { path };
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : "Unable to upload that photo" };
+  }
 }
 
 export async function toggleRecommendationSaved(recId: string, eventId: string, saved: boolean) {

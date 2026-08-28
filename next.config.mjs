@@ -13,7 +13,8 @@ const nextConfig = {
       { protocol: "https", hostname: "ceremonia.com" },
       { protocol: "https", hostname: "cdn.shopify.com" },
       { protocol: "https", hostname: "www.makeupbymario.com" },
-      { protocol: "https", hostname: "jvnhair.com" }
+      { protocol: "https", hostname: "jvnhair.com" },
+      { protocol: "https", hostname: "**.supabase.co" }
     ]
   }
 };

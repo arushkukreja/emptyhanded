@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
 import {
   CalendarDays,
@@ -16,6 +17,7 @@ import { getProductImage } from "@/lib/product-images";
 import RecommendationCard from "@/components/RecommendationCard";
 import EmptyState from "@/components/EmptyState";
 import RegenerateButton from "./RegenerateButton";
+import { getPrivateProfileImageUrl } from "@/lib/media";
 
 export const dynamic = "force-dynamic";
 
@@ -96,6 +98,7 @@ export default async function EventDetailPage(props: { params: Promise<{ id: str
   const occasion = OCCASION_LABEL[event.occasion_type] ?? event.occasion_type;
   const budgetLabel = getBudgetLabel(profile?.budget_tier);
   const profileTags = [...(profile?.archetypes ?? []), budgetLabel].filter(Boolean) as string[];
+  const avatarUrl = await getPrivateProfileImageUrl(profile?.avatar_path);
 
   return (
     <div className="min-h-screen bg-[#fbfaf7] pb-24">
@@ -114,8 +117,8 @@ export default async function EventDetailPage(props: { params: Promise<{ id: str
           <div className="relative grid lg:grid-cols-[minmax(0,1fr)_390px]">
             <div className="p-6 sm:p-9 lg:p-11">
               <div className="flex items-center gap-4">
-                <span className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-white/15 bg-white/10 text-lg font-extrabold text-accent sm:h-16 sm:w-16 sm:text-xl">
-                  {initials(event.recipient_name)}
+                <span className="relative grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-2xl border border-white/15 bg-white/10 text-lg font-extrabold text-accent sm:h-16 sm:w-16 sm:text-xl">
+                  {avatarUrl ? <Image src={avatarUrl} alt={event.recipient_name} fill sizes="64px" className="object-cover" /> : initials(event.recipient_name)}
                 </span>
                 <div className="min-w-0">
                   <p className="text-xs font-bold uppercase tracking-[0.16em] text-accent">Gift plan</p>

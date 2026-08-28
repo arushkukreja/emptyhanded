@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import SiteMenu from "@/components/SiteMenu";
 import { hasSupabaseSessionCookie } from "@/lib/auth-session";
 import { createClient } from "@/lib/supabase/server";
+import AccountMenu from "@/components/AccountMenu";
 
 const steps = [
   { number: "01", title: "Add an occasion", copy: "Birthday, anniversary, baby shower—drop in the date and the person. It takes less than a minute.", icon: CalendarDays },
@@ -38,12 +39,17 @@ type LandingSearchParams = {
 
 export default async function LandingPage({ searchParams }: { searchParams: Promise<LandingSearchParams> }) {
   const campaign = await searchParams;
-  let user: { email?: string } | null = null;
+  let user: { id: string; email?: string } | null = null;
+  let appUser: { display_name: string | null; is_admin: boolean } | null = null;
   if (await hasSupabaseSessionCookie()) {
     try {
       const supabase = await createClient();
       const result = await supabase.auth.getUser();
-      user = result.data.user;
+      user = result.data.user ? { id: result.data.user.id, email: result.data.user.email } : null;
+      if (user) {
+        const profileResult = await supabase.from("users").select("display_name, is_admin").eq("id", user.id).maybeSingle();
+        appUser = profileResult.data;
+      }
     } catch {
       user = null;
     }
@@ -60,7 +66,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
           </div>
           <div className="flex items-center gap-2 sm:gap-4">
             {user ? (
-              <Link href="/dashboard" className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-800">Dashboard</Link>
+              <AccountMenu email={user.email} name={appUser?.display_name ?? undefined} isAdmin={Boolean(appUser?.is_admin)} />
             ) : (
               <>
                 <Link href="/login" className="hidden text-sm font-semibold text-primary-600 transition hover:text-primary sm:block">Sign in</Link>

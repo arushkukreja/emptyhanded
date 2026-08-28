@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useTransition, type FormEvent, type ReactNode } from "react";
+import Image from "next/image";
+import { useEffect, useState, useTransition, type FormEvent, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, ArrowRight, Check, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowRight, Camera, Check, Sparkles } from "lucide-react";
 import { ARCHETYPES, BUDGET_TIERS, OCCASIONS, RELATIONSHIPS, type OccasionType } from "@/lib/occasions";
-import { createEvent } from "../actions";
+import { createEvent, uploadRecipientPhoto } from "../actions";
 import { createClient as createBrowserClient } from "@/lib/supabase/client";
 
 const TOTAL_STEPS = 10;
@@ -26,6 +27,14 @@ export default function NewEventPage() {
   const [interests, setInterests] = useState("");
   const [budgetTier, setBudgetTier] = useState("");
   const [pastGifts, setPastGifts] = useState("");
+  const [recipientPhoto, setRecipientPhoto] = useState<File | null>(null);
+  const [recipientPhotoPreview, setRecipientPhotoPreview] = useState<string | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (recipientPhotoPreview) URL.revokeObjectURL(recipientPhotoPreview);
+    };
+  }, [recipientPhotoPreview]);
 
   const firstName = recipientName.trim().split(" ")[0] || "them";
   const canContinue = step === 1 ? recipientName.trim().length > 0 : step === 2 ? eventDate.length > 0 : true;
@@ -49,6 +58,18 @@ export default function NewEventPage() {
         return;
       }
 
+      let avatarPath: string | undefined;
+      if (recipientPhoto) {
+        const formData = new FormData();
+        formData.set("photo", recipientPhoto);
+        const upload = await uploadRecipientPhoto(formData);
+        if ("error" in upload && upload.error) {
+          setError(upload.error);
+          return;
+        }
+        if ("path" in upload) avatarPath = upload.path;
+      }
+
       const result = await createEvent({
         occasion_type: occasion as OccasionType,
         event_date: eventDate,
@@ -59,7 +80,8 @@ export default function NewEventPage() {
         archetypes,
         interests: interests || undefined,
         budget_tier: budgetTier || undefined,
-        past_gifts: pastGifts || undefined
+        past_gifts: pastGifts || undefined,
+        avatar_path: avatarPath
       });
       if ("error" in result && result.error) {
         setError(result.error);
@@ -94,6 +116,31 @@ export default function NewEventPage() {
           <Question number="02" title="Who is this for?" helper="Their first name is enough. Add a last name if it helps you keep people organized.">
             <label className="sr-only" htmlFor="recipient-name">Recipient name</label>
             <input id="recipient-name" autoFocus required value={recipientName} onChange={event => setRecipientName(event.target.value)} placeholder="Type their name..." className={fieldClass} />
+            <div className="mt-6 flex items-center gap-4 rounded-2xl border border-cream-200 bg-white p-4">
+              <div className="relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-primary text-lg font-black text-accent">
+                {recipientPhotoPreview ? <Image src={recipientPhotoPreview} alt="Recipient preview" fill unoptimized className="object-cover" /> : (recipientName.trim().slice(0, 1).toUpperCase() || <Camera size={22} />)}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-bold text-primary">Add a photo</p>
+                <p className="mt-1 text-xs leading-5 text-primary-400">Optional. JPG, PNG, or WebP up to 5 MB.</p>
+              </div>
+              <label className="cursor-pointer rounded-full border border-primary-200 px-4 py-2 text-xs font-bold text-primary transition hover:border-accent hover:bg-accent-50">
+                Choose
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  className="sr-only"
+                  onChange={event => {
+                    const file = event.target.files?.[0] ?? null;
+                    setRecipientPhoto(file);
+                    setRecipientPhotoPreview(current => {
+                      if (current) URL.revokeObjectURL(current);
+                      return file ? URL.createObjectURL(file) : null;
+                    });
+                  }}
+                />
+              </label>
+            </div>
           </Question>
         );
       case 2:
@@ -139,7 +186,7 @@ export default function NewEventPage() {
       case 8:
         return (
           <Question number="09" title="What feels comfortable to spend?" helper="We’ll keep every recommendation inside your range.">
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{BUDGET_TIERS.map(item => <button key={item.value} type="button" onClick={() => setBudgetTier(item.value)} className={`${optionClass} min-h-24 ${budgetTier === item.value ? "border-primary bg-primary text-white" : "border-cream-200 bg-white text-primary hover:border-accent"}`}><span className="display-type block text-xl font-bold">{item.label}</span><span className="mt-1 block text-xs opacity-60">Thoughtful range</span></button>)}</div>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{BUDGET_TIERS.map(item => <button key={item.value} type="button" onClick={() => setBudgetTier(item.value)} className={`${optionClass} min-h-20 ${budgetTier === item.value ? "border-primary bg-primary text-white" : "border-cream-200 bg-white text-primary hover:border-accent"}`}><span className="display-type block text-xl font-bold">{item.label}</span></button>)}</div>
           </Question>
         );
       default:
