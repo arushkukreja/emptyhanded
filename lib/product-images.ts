@@ -1,4 +1,7 @@
 const PRODUCT_IMAGES = [
+  { terms: ["ember temperature control", "ember smart mug"], src: "/images/recommendations/ember-smart-mug-2.jpg" },
+  { terms: ["fellow stagg", "gooseneck kettle"], src: "/images/recommendations/fellow-stagg-ekg.png" },
+  { terms: ["away the bigger carry-on", "away bigger carry-on"], src: "/images/recommendations/away-bigger-carry-on.jpg" },
   { terms: ["journal", "notebook"], src: "/images/product-journal.jpg" },
   { terms: ["pour-over", "coffee", "ceramic"], src: "/images/product-coffee.jpg" },
   { terms: ["vinyl", "bill evans", "record"], src: "/images/product-vinyl.jpg" },

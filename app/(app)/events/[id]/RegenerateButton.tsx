@@ -20,7 +20,7 @@ export default function RegenerateButton({ eventId }: { eventId: string }) {
   return (
     <Button onClick={onClick} disabled={pending} variant="primary" size="sm" className="inline-flex items-center gap-2">
       <RefreshCw size={14} className={pending ? "animate-spin text-accent" : "text-accent"} />
-      {pending ? "Thinking..." : "Regenerate ideas"}
+      {pending ? "Thinking..." : "Regenerate"}
     </Button>
   );
 }

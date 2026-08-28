@@ -29,10 +29,24 @@ export const ARCHETYPES = [
 ] as const;
 
 export const BUDGET_TIERS = [
-  { value: "low", label: "Under $50" },
-  { value: "mid", label: "$50 – $150" },
-  { value: "high", label: "$150+" }
+  { value: "Under $25", label: "Under $25" },
+  { value: "$25 – $50", label: "$25 – $50" },
+  { value: "$50 – $100", label: "$50 – $100" },
+  { value: "$100 – $200", label: "$100 – $200" },
+  { value: "$200 – $500", label: "$200 – $500" },
+  { value: "$500+", label: "$500+" }
 ] as const;
+
+const LEGACY_BUDGET_LABELS: Record<string, string> = {
+  low: "Under $50",
+  mid: "$50 – $150",
+  high: "$150+"
+};
+
+export function getBudgetLabel(value?: string | null) {
+  if (!value) return null;
+  return LEGACY_BUDGET_LABELS[value.toLowerCase()] ?? value;
+}
 
 export const RELATIONSHIPS = [
   "Partner",

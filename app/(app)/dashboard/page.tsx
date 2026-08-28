@@ -4,7 +4,7 @@ import { ArrowRight, CalendarDays, Heart, Package, Plus, Sparkles } from "lucide
 import { differenceInCalendarDays, format, parseISO } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
 import { getProductImage } from "@/lib/product-images";
-import { OCCASION_LABEL } from "@/lib/occasions";
+import { getBudgetLabel, OCCASION_LABEL } from "@/lib/occasions";
 import EmptyState from "@/components/EmptyState";
 import Button from "@/components/Button";
 
@@ -147,7 +147,8 @@ export default async function DashboardPage() {
                   const days = Math.max(0, differenceInCalendarDays(parseISO(event.event_date), today));
                   const profile = profileByEvent.get(event.id);
                   const savedCount = savedByEvent.get(event.id)?.length ?? 0;
-                  return <Link key={event.id} href={`/events/${event.id}`} className={`rounded-[22px] border p-6 transition hover:-translate-y-1 hover:shadow-soft ${index === 0 ? "border-accent bg-accent-50" : "border-cream-200 bg-white"}`}><div className="flex items-start justify-between"><span className="grid h-14 w-14 place-items-center rounded-full bg-primary text-lg font-black text-white">{initials(event.recipient_name)}</span><p><span className="display-type text-4xl font-black text-primary">{days}</span><span className="ml-1 text-xs font-semibold text-primary-400">days</span></p></div><h3 className="mt-5 text-xl font-bold text-primary">{event.recipient_name}</h3><p className="mt-1 text-sm text-primary-400">{OCCASION_LABEL[event.occasion_type] ?? event.occasion_type}{profile?.budget_tier ? ` · ${profile.budget_tier}` : ""}</p><div className="mt-5 flex items-center justify-between border-t border-dashed border-cream-200 pt-4 text-xs"><span className="inline-flex items-center gap-1.5 font-semibold text-primary-500"><Heart size={13} className="text-accent" fill={savedCount ? "currentColor" : "none"} /> {savedCount} saved</span><span className="font-bold text-accent-700">View picks →</span></div></Link>;
+                  const budgetLabel = getBudgetLabel(profile?.budget_tier);
+                  return <Link key={event.id} href={`/events/${event.id}`} className={`rounded-[22px] border p-6 transition hover:-translate-y-1 hover:shadow-soft ${index === 0 ? "border-accent bg-accent-50" : "border-cream-200 bg-white"}`}><div className="flex items-start justify-between"><span className="grid h-14 w-14 place-items-center rounded-full bg-primary text-lg font-black text-white">{initials(event.recipient_name)}</span><p><span className="display-type text-4xl font-black text-primary">{days}</span><span className="ml-1 text-xs font-semibold text-primary-400">days</span></p></div><h3 className="mt-5 text-xl font-bold text-primary">{event.recipient_name}</h3><p className="mt-1 text-sm text-primary-400">{OCCASION_LABEL[event.occasion_type] ?? event.occasion_type}{budgetLabel ? ` · ${budgetLabel}` : ""}</p><div className="mt-5 flex items-center justify-between border-t border-dashed border-cream-200 pt-4 text-xs"><span className="inline-flex items-center gap-1.5 font-semibold text-primary-500"><Heart size={13} className="text-accent" fill={savedCount ? "currentColor" : "none"} /> {savedCount} saved</span><span className="font-bold text-accent-700">View picks →</span></div></Link>;
                 })}
               </div>
             </section>

@@ -5,18 +5,17 @@ import {
   ChevronRight,
   Clock3,
   Gift,
-  Heart,
   Sparkles,
   UserRound,
   WalletCards,
 } from "lucide-react";
 import { differenceInCalendarDays, format, isValid, parseISO } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
-import { OCCASION_LABEL } from "@/lib/occasions";
+import { getBudgetLabel, OCCASION_LABEL } from "@/lib/occasions";
+import { getProductImage } from "@/lib/product-images";
 import RecommendationCard from "@/components/RecommendationCard";
 import EmptyState from "@/components/EmptyState";
 import RegenerateButton from "./RegenerateButton";
-import DeleteButton from "./DeleteButton";
 
 export const dynamic = "force-dynamic";
 
@@ -52,10 +51,41 @@ export default async function EventDetailPage(props: { params: Promise<{ id: str
     supabase.from("recipient_profiles").select("*").eq("event_id", params.id).maybeSingle(),
     supabase
       .from("recommendations")
-      .select("id, product_name, amazon_url, budget_range, reason, is_saved")
+      .select("id, product_name, asin, amazon_url, budget_range, reason, is_saved, created_at")
       .eq("event_id", params.id)
-      .order("created_at", { ascending: false }),
+      .order("created_at", { ascending: false })
+      .order("id", { ascending: true }),
   ]);
+
+  const latestBatchCreatedAt = recs?.[0]?.created_at;
+  const latestRecs = (recs ?? [])
+    .filter((item) => item.created_at === latestBatchCreatedAt)
+    .slice(0, 6);
+  const catalogAsins = Array.from(
+    new Set(latestRecs.map((item) => item.asin).filter((asin): asin is string => Boolean(asin)))
+  );
+  let catalogProducts: Array<{ asin: string; image_url: string | null }> = [];
+  if (catalogAsins.length > 0) {
+    const { data } = await supabase
+      .from("products")
+      .select("asin, image_url")
+      .in("asin", catalogAsins);
+    catalogProducts = data ?? [];
+  }
+  const catalogImageByAsin = new Map(catalogProducts.map((product) => [product.asin, product.image_url]));
+  const recommendations = latestRecs.map((recommendation) => ({
+    ...recommendation,
+    image_url: recommendation.asin ? catalogImageByAsin.get(recommendation.asin) ?? null : null
+  }));
+  const firstRecommendationWithImage = recommendations.findIndex(
+    (recommendation) => recommendation.image_url || getProductImage(recommendation.product_name)
+  );
+  const orderedRecommendations = firstRecommendationWithImage > 0
+    ? [
+        recommendations[firstRecommendationWithImage],
+        ...recommendations.filter((_, index) => index !== firstRecommendationWithImage)
+      ]
+    : recommendations;
 
   const date = parseISO(event.event_date);
   if (!isValid(date)) notFound();
@@ -64,7 +94,8 @@ export default async function EventDetailPage(props: { params: Promise<{ id: str
   const savedCount = recs?.filter((item) => item.is_saved).length ?? 0;
   const firstName = event.recipient_name.split(" ")[0];
   const occasion = OCCASION_LABEL[event.occasion_type] ?? event.occasion_type;
-  const profileTags = [...(profile?.archetypes ?? []), profile?.budget_tier].filter(Boolean) as string[];
+  const budgetLabel = getBudgetLabel(profile?.budget_tier);
+  const profileTags = [...(profile?.archetypes ?? []), budgetLabel].filter(Boolean) as string[];
 
   return (
     <div className="min-h-screen bg-[#fbfaf7] pb-24">
@@ -88,7 +119,7 @@ export default async function EventDetailPage(props: { params: Promise<{ id: str
                 </span>
                 <div className="min-w-0">
                   <p className="text-xs font-bold uppercase tracking-[0.16em] text-accent">Gift plan</p>
-                  <h1 className="display-type mt-1 truncate text-3xl font-bold tracking-[-0.04em] sm:text-4xl lg:text-5xl">
+                  <h1 className="display-type mt-1 break-words pb-1 text-3xl font-bold leading-[1.08] tracking-[-0.04em] sm:text-4xl lg:text-5xl">
                     {event.recipient_name}
                   </h1>
                 </div>
@@ -124,40 +155,41 @@ export default async function EventDetailPage(props: { params: Promise<{ id: str
           </div>
         </section>
 
-        <div className="mt-5 flex flex-col gap-3 rounded-2xl border border-cream-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-sm leading-6 text-primary-500">
-            Refresh the list anytime if you want a different direction.
-          </p>
-          <div className="flex flex-wrap gap-2"><RegenerateButton eventId={event.id} /><DeleteButton eventId={event.id} /></div>
-        </div>
-
         <div className="mt-10 grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_310px] xl:gap-10">
           <main>
-            <div className="mb-6 flex items-end justify-between gap-4">
+            <div className="mb-6 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <p className="eyebrow">Curated for them</p>
                 <h2 className="display-type mt-2 text-3xl font-bold tracking-[-0.035em] text-primary sm:text-4xl">
                   Recommended for {firstName}
                 </h2>
-                <p className="mt-2 max-w-2xl text-sm leading-6 text-primary-500">A considered mix of useful, personal, and memorable ideas.</p>
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-primary-500">
+                  A considered mix of useful, personal, and memorable ideas{savedCount > 0 ? ` · ${savedCount} saved` : ""}.
+                </p>
               </div>
-              {savedCount > 0 && (
-                <span className="hidden shrink-0 items-center gap-2 rounded-full bg-accent-100 px-3 py-2 text-xs font-bold text-accent-700 sm:flex">
-                  <Heart size={14} fill="currentColor" aria-hidden="true" /> {savedCount} saved
-                </span>
-              )}
+              <div className="shrink-0 self-end"><RegenerateButton eventId={event.id} /></div>
             </div>
 
-            {!recs || recs.length === 0 ? (
+            {orderedRecommendations.length === 0 ? (
               <EmptyState title="No recommendations yet" description="Try regenerating—we'll pull together a fresh, thoughtful batch." />
             ) : (
               <>
-                <RecommendationCard {...recs[0]} eventId={event.id} featured index={0} />
-                <div className="grid items-stretch gap-5 md:grid-cols-2">
-                  {recs.slice(1).map((rec, index) => (
-                    <RecommendationCard key={rec.id} {...rec} eventId={event.id} index={index + 1} />
-                  ))}
-                </div>
+                <RecommendationCard {...orderedRecommendations[0]} eventId={event.id} featured index={0} />
+                {orderedRecommendations.length > 1 && (
+                  <section aria-labelledby="additional-options-title" className="mt-9">
+                    <div className="mb-5">
+                      <p className="eyebrow">More to explore</p>
+                      <h3 id="additional-options-title" className="display-type mt-1 text-2xl font-bold tracking-[-0.025em] text-primary sm:text-3xl">
+                        Additional options
+                      </h3>
+                    </div>
+                    <div className="grid items-stretch gap-5 md:grid-cols-2">
+                      {orderedRecommendations.slice(1).map((rec, index) => (
+                        <RecommendationCard key={rec.id} {...rec} eventId={event.id} index={index + 1} />
+                      ))}
+                    </div>
+                  </section>
+                )}
               </>
             )}
           </main>
@@ -172,7 +204,7 @@ export default async function EventDetailPage(props: { params: Promise<{ id: str
               <dl className="mt-6 divide-y divide-cream-200">
                 {profile.relationship && <div className="grid grid-cols-[110px_1fr] gap-3 py-4 first:pt-0"><dt className="text-xs font-semibold text-primary-400">Relationship</dt><dd className="text-sm font-semibold text-primary">{profile.relationship}</dd></div>}
                 {profile.age_range && <div className="grid grid-cols-[110px_1fr] gap-3 py-4"><dt className="text-xs font-semibold text-primary-400">Age range</dt><dd className="text-sm font-semibold text-primary">{profile.age_range}</dd></div>}
-                {profile.budget_tier && <div className="grid grid-cols-[110px_1fr] gap-3 py-4"><dt className="flex items-center gap-1.5 text-xs font-semibold text-primary-400"><WalletCards size={13} aria-hidden="true" /> Budget</dt><dd className="text-sm font-semibold capitalize text-primary">{profile.budget_tier}</dd></div>}
+                {budgetLabel && <div className="grid grid-cols-[110px_1fr] gap-3 py-4"><dt className="flex items-center gap-1.5 text-xs font-semibold text-primary-400"><WalletCards size={13} aria-hidden="true" /> Budget</dt><dd className="text-sm font-semibold text-primary">{budgetLabel}</dd></div>}
                 {profile.interests && <div className="py-4"><dt className="flex items-center gap-1.5 text-xs font-semibold text-primary-400"><Sparkles size={13} aria-hidden="true" /> Interests</dt><dd className="mt-2 text-sm leading-6 text-primary-600">{profile.interests}</dd></div>}
                 {profile.past_gifts && <div className="py-4 last:pb-0"><dt className="text-xs font-semibold text-primary-400">Past gifts</dt><dd className="mt-2 text-sm leading-6 text-primary-600">{profile.past_gifts}</dd></div>}
               </dl>

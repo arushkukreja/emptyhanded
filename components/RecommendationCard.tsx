@@ -24,6 +24,9 @@ export default function RecommendationCard({ id, eventId, product_name, amazon_u
   const [pending, start] = useTransition();
   const [saved, setSaved] = useState(is_saved);
   const productImage = image_url || getProductImage(product_name);
+  const isProductCutout = Boolean(image_url)
+    || productImage?.includes("/images/catalog/")
+    || productImage?.includes("/images/recommendations/");
   const productLinkLabel = amazon_url.includes("amazon.com/s?") ? "Find on Amazon" : "View product";
   const toggle = () => {
     const nextSaved = !saved;
@@ -57,7 +60,7 @@ export default function RecommendationCard({ id, eventId, product_name, amazon_u
       <article className="group mb-6 grid overflow-hidden rounded-[22px] border border-cream-200 bg-white shadow-soft transition hover:-translate-y-1 hover:shadow-lift sm:rounded-[24px] lg:grid-cols-[340px_1fr]">
         <div className="relative min-h-[220px] overflow-hidden bg-cream-100 sm:min-h-64 lg:min-h-[330px]">
           {productImage ? (
-            <Image src={productImage} alt={product_name} fill priority={index === 0} sizes="(max-width: 1024px) 100vw, 340px" className={`${image_url ? "object-contain p-6" : "object-cover"} transition duration-700 group-hover:scale-105`} />
+            <Image src={productImage} alt={product_name} fill priority={index === 0} sizes="(max-width: 1024px) 100vw, 340px" className={`${isProductCutout ? "object-contain p-6" : "object-cover"} transition duration-700 group-hover:scale-105`} />
           ) : (
             <div className="absolute inset-0 grid place-items-center bg-gradient-to-br from-cream to-accent-100 text-accent-700"><Package size={54} strokeWidth={1.25} aria-hidden="true" /></div>
           )}
@@ -82,7 +85,7 @@ export default function RecommendationCard({ id, eventId, product_name, amazon_u
     <article className="group grid h-full min-h-[470px] grid-rows-[190px_1fr] overflow-hidden rounded-[20px] border border-cream-200 bg-white shadow-soft transition hover:-translate-y-1 hover:shadow-lift">
       <div className="relative h-[190px] overflow-hidden bg-cream-100">
         {productImage ? (
-          <Image src={productImage} alt={product_name} fill priority={index === 0} sizes="(max-width: 767px) 100vw, (max-width: 1024px) 50vw, 33vw" className={`${image_url ? "object-contain p-5" : "object-cover"} transition duration-700 group-hover:scale-105`} />
+          <Image src={productImage} alt={product_name} fill priority={index === 0} sizes="(max-width: 767px) 100vw, (max-width: 1024px) 50vw, 33vw" className={`${isProductCutout ? "object-contain p-5" : "object-cover"} transition duration-700 group-hover:scale-105`} />
         ) : (
           <div className="absolute inset-0 grid place-items-center bg-gradient-to-br from-cream to-accent-100 text-accent-700"><Package size={46} strokeWidth={1.25} aria-hidden="true" /></div>
         )}

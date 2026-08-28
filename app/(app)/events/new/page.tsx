@@ -138,7 +138,7 @@ export default function NewEventPage() {
       case 8:
         return (
           <Question number="09" title="What feels comfortable to spend?" helper="We’ll keep every recommendation inside your range.">
-            <div className="grid gap-3 sm:grid-cols-3">{BUDGET_TIERS.map(item => <button key={item.value} type="button" onClick={() => setBudgetTier(item.value)} className={`${optionClass} min-h-24 ${budgetTier === item.value ? "border-primary bg-primary text-white" : "border-cream-200 bg-white text-primary hover:border-accent"}`}><span className="display-type block text-xl font-bold">{item.label}</span><span className="mt-1 block text-xs opacity-60">Thoughtful range</span></button>)}</div>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{BUDGET_TIERS.map(item => <button key={item.value} type="button" onClick={() => setBudgetTier(item.value)} className={`${optionClass} min-h-24 ${budgetTier === item.value ? "border-primary bg-primary text-white" : "border-cream-200 bg-white text-primary hover:border-accent"}`}><span className="display-type block text-xl font-bold">{item.label}</span><span className="mt-1 block text-xs opacity-60">Thoughtful range</span></button>)}</div>
           </Question>
         );
       default:
