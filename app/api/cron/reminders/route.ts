@@ -73,7 +73,7 @@ export async function GET(request: Request) {
       try {
         const { data: profile } = await admin
           .from("recipient_profiles")
-          .select("relationship, age_range, gender, archetypes, interests, budget_tier, past_gifts")
+          .select("relationship, age, age_range, gender, archetypes, interests, budget_tier, past_gifts")
           .eq("event_id", ev.id)
           .maybeSingle();
         const fresh = await generateRecommendations({
@@ -81,6 +81,7 @@ export async function GET(request: Request) {
           occasion_type: ev.occasion_type,
           event_date: ev.event_date,
           relationship: profile?.relationship,
+          age: profile?.age,
           age_range: profile?.age_range,
           gender: profile?.gender,
           archetypes: profile?.archetypes ?? [],

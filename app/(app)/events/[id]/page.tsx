@@ -5,8 +5,8 @@ import {
   ChevronRight,
   Clock3,
   Gift,
+  PencilLine,
   Sparkles,
-  UserRound,
   WalletCards,
 } from "lucide-react";
 import { differenceInCalendarDays, format, isValid, parseISO } from "date-fns";
@@ -157,17 +157,17 @@ export default async function EventDetailPage(props: { params: Promise<{ id: str
 
         <div className="mt-10 grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_310px] xl:gap-10">
           <main>
-            <div className="mb-6 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <p className="eyebrow">Curated for them</p>
-                <h2 className="display-type mt-2 text-3xl font-bold tracking-[-0.035em] text-primary sm:text-4xl">
+            <div className="mb-6">
+              <p className="eyebrow">Curated for them</p>
+              <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
+                <h2 className="display-type text-3xl font-bold tracking-[-0.035em] text-primary sm:text-4xl">
                   Recommended for {firstName}
                 </h2>
-                <p className="mt-2 max-w-2xl text-sm leading-6 text-primary-500">
-                  A considered mix of useful, personal, and memorable ideas{savedCount > 0 ? ` · ${savedCount} saved` : ""}.
-                </p>
+                <div className="shrink-0"><RegenerateButton eventId={event.id} /></div>
               </div>
-              <div className="shrink-0 self-end"><RegenerateButton eventId={event.id} /></div>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-primary-500">
+                A considered mix of useful, personal, and memorable ideas{savedCount > 0 ? ` · ${savedCount} saved` : ""}.
+              </p>
             </div>
 
             {orderedRecommendations.length === 0 ? (
@@ -183,7 +183,7 @@ export default async function EventDetailPage(props: { params: Promise<{ id: str
                         Additional options
                       </h3>
                     </div>
-                    <div className="grid items-stretch gap-5 md:grid-cols-2">
+                    <div className="grid items-stretch gap-5 md:grid-cols-2 xl:grid-cols-3">
                       {orderedRecommendations.slice(1).map((rec, index) => (
                         <RecommendationCard key={rec.id} {...rec} eventId={event.id} index={index + 1} />
                       ))}
@@ -197,13 +197,14 @@ export default async function EventDetailPage(props: { params: Promise<{ id: str
           {profile && (
             <aside className="rounded-[22px] border border-cream-200 bg-white p-6 shadow-soft lg:sticky lg:top-24" aria-labelledby="recipient-profile-title">
               <div className="flex items-center justify-between gap-4">
-                <div><p className="eyebrow !text-primary-400">Recipient profile</p><h2 id="recipient-profile-title" className="display-type mt-2 text-2xl font-bold text-primary">About {firstName}</h2></div>
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-cream-100 text-accent-700"><UserRound size={18} aria-hidden="true" /></span>
+                <p className="eyebrow !text-primary-400">Recipient profile</p>
+                <Link href={`/events/${event.id}/edit`} className="inline-flex items-center gap-1.5 rounded-full border border-cream-200 px-3 py-1.5 text-xs font-bold text-primary-500 transition hover:border-accent hover:bg-accent-50 hover:text-primary"><PencilLine size={13} /> Edit</Link>
               </div>
+              <h2 id="recipient-profile-title" className="display-type mt-2 text-2xl font-bold text-primary">About {firstName}</h2>
 
               <dl className="mt-6 divide-y divide-cream-200">
                 {profile.relationship && <div className="grid grid-cols-[110px_1fr] gap-3 py-4 first:pt-0"><dt className="text-xs font-semibold text-primary-400">Relationship</dt><dd className="text-sm font-semibold text-primary">{profile.relationship}</dd></div>}
-                {profile.age_range && <div className="grid grid-cols-[110px_1fr] gap-3 py-4"><dt className="text-xs font-semibold text-primary-400">Age range</dt><dd className="text-sm font-semibold text-primary">{profile.age_range}</dd></div>}
+                {profile.age !== null && profile.age !== undefined ? <div className="grid grid-cols-[110px_1fr] gap-3 py-4"><dt className="text-xs font-semibold text-primary-400">Age</dt><dd className="text-sm font-semibold text-primary">{profile.age}</dd></div> : profile.age_range ? <div className="grid grid-cols-[110px_1fr] gap-3 py-4"><dt className="text-xs font-semibold text-primary-400">Age range</dt><dd className="text-sm font-semibold text-primary">{profile.age_range}</dd></div> : null}
                 {budgetLabel && <div className="grid grid-cols-[110px_1fr] gap-3 py-4"><dt className="flex items-center gap-1.5 text-xs font-semibold text-primary-400"><WalletCards size={13} aria-hidden="true" /> Budget</dt><dd className="text-sm font-semibold text-primary">{budgetLabel}</dd></div>}
                 {profile.interests && <div className="py-4"><dt className="flex items-center gap-1.5 text-xs font-semibold text-primary-400"><Sparkles size={13} aria-hidden="true" /> Interests</dt><dd className="mt-2 text-sm leading-6 text-primary-600">{profile.interests}</dd></div>}
                 {profile.past_gifts && <div className="py-4 last:pb-0"><dt className="text-xs font-semibold text-primary-400">Past gifts</dt><dd className="mt-2 text-sm leading-6 text-primary-600">{profile.past_gifts}</dd></div>}

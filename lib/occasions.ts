@@ -25,7 +25,14 @@ export const ARCHETYPES = [
   "Outdoorsy",
   "Fitness Person",
   "Creative",
-  "Luxury Seeker"
+  "Luxury Seeker",
+  "Beauty Lover",
+  "Wellness",
+  "Host",
+  "Design Lover",
+  "Music Lover",
+  "Traveler",
+  "Fashion Lover"
 ] as const;
 
 export const BUDGET_TIERS = [
@@ -61,3 +68,14 @@ export const RELATIONSHIPS = [
 ] as const;
 
 export const AGE_RANGES = ["Under 18", "18-24", "25-34", "35-44", "45-54", "55-64", "65+"] as const;
+
+export function ageRangeForAge(age?: number | null) {
+  if (age === null || age === undefined || !Number.isFinite(age)) return null;
+  if (age < 18) return "Under 18";
+  if (age <= 24) return "18-24";
+  if (age <= 34) return "25-34";
+  if (age <= 44) return "35-44";
+  if (age <= 54) return "45-54";
+  if (age <= 64) return "55-64";
+  return "65+";
+}

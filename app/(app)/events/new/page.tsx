@@ -3,7 +3,7 @@
 import { useState, useTransition, type FormEvent, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, ArrowRight, Check, Sparkles } from "lucide-react";
-import { ARCHETYPES, BUDGET_TIERS, OCCASIONS, RELATIONSHIPS, AGE_RANGES, type OccasionType } from "@/lib/occasions";
+import { ARCHETYPES, BUDGET_TIERS, OCCASIONS, RELATIONSHIPS, type OccasionType } from "@/lib/occasions";
 import { createEvent } from "../actions";
 import { createClient as createBrowserClient } from "@/lib/supabase/client";
 
@@ -20,7 +20,7 @@ export default function NewEventPage() {
   const [eventDate, setEventDate] = useState("");
   const [recipientName, setRecipientName] = useState("");
   const [relationship, setRelationship] = useState("");
-  const [ageRange, setAgeRange] = useState("");
+  const [age, setAge] = useState("");
   const [gender, setGender] = useState("");
   const [archetypes, setArchetypes] = useState<string[]>([]);
   const [interests, setInterests] = useState("");
@@ -54,7 +54,7 @@ export default function NewEventPage() {
         event_date: eventDate,
         recipient_name: recipientName,
         relationship: relationship || undefined,
-        age_range: ageRange || undefined,
+        age: age ? Number(age) : undefined,
         gender: gender || undefined,
         archetypes,
         interests: interests || undefined,
@@ -111,8 +111,9 @@ export default function NewEventPage() {
         );
       case 4:
         return (
-          <Question number="05" title={`What age range is ${firstName} in?`} helper="A broad range is all we need—and you can skip this if you’re unsure.">
-            <div className="grid grid-cols-2 gap-2.5 sm:gap-3 lg:grid-cols-3">{AGE_RANGES.map(item => <button key={item} type="button" onClick={() => setAgeRange(item)} className={`${optionClass} ${ageRange === item ? "border-primary bg-primary text-white" : "border-cream-200 bg-white text-primary hover:border-accent"}`}>{item}</button>)}</div>
+          <Question number="05" title={`How old is ${firstName}?`} helper="Enter one number. We use their exact age together with their interests to improve the matches—and you can skip this if you’re unsure.">
+            <label className="sr-only" htmlFor="recipient-age">Age</label>
+            <input id="recipient-age" autoFocus type="number" inputMode="numeric" min="0" max="120" step="1" value={age} onChange={event => setAge(event.target.value)} placeholder="For example, 32" className={`${fieldClass} max-w-xs`} />
           </Question>
         );
       case 5:
@@ -124,7 +125,7 @@ export default function NewEventPage() {
         );
       case 6:
         return (
-          <Question number="07" title={`Which words feel most like ${firstName}?`} helper={`Pick as many as feel true${archetypes.length ? ` — ${archetypes.length} selected` : ""}.`}>
+          <Question number="07" title={`Which interest categories fit ${firstName}?`} helper={`Choose all that apply. We match these categories together with age${archetypes.length ? ` — ${archetypes.length} selected` : ""}.`}>
             <div className="grid grid-cols-2 gap-2.5 sm:gap-3">{ARCHETYPES.map(item => <button key={item} type="button" onClick={() => toggleArchetype(item)} className={`${optionClass} flex items-center justify-between gap-2 ${archetypes.includes(item) ? "border-accent bg-accent-100 text-accent-700" : "border-cream-200 bg-white text-primary hover:border-accent"}`}><span>{item}</span>{archetypes.includes(item) && <Check size={17} className="shrink-0" />}</button>)}</div>
           </Question>
         );

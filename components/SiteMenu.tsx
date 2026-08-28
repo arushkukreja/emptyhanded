@@ -2,12 +2,14 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { House, LayoutDashboard, Menu, X } from "lucide-react";
+import { Heart, House, LayoutDashboard, Menu, ShoppingBag, X } from "lucide-react";
 import { usePathname } from "next/navigation";
 
 const links = [
   { href: "/", label: "Home", description: "About emptyhanded", icon: House },
-  { href: "/dashboard", label: "Dashboard", description: "Your occasion calendar", icon: LayoutDashboard }
+  { href: "/dashboard", label: "Dashboard", description: "Your occasion calendar", icon: LayoutDashboard },
+  { href: "/recommendations", label: "Saved picks", description: "Recommendations you kept", icon: Heart },
+  { href: "/shop", label: "Shop", description: "Browse all gift ideas", icon: ShoppingBag }
 ];
 
 export default function SiteMenu() {
@@ -51,7 +53,7 @@ export default function SiteMenu() {
             <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-primary-400">Explore emptyhanded</p>
           </div>
           {links.map(({ href, label, description, icon: Icon }) => {
-            const active = pathname === href;
+            const active = pathname === href || (href !== "/" && pathname.startsWith(`${href}/`));
             return (
               <Link
                 key={href}

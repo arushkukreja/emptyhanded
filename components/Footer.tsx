@@ -17,6 +17,7 @@ export default function Footer({ signedIn = false }: { signedIn?: boolean }) {
               <>
                 <Link className="block hover:text-white" href="/dashboard">Dashboard</Link>
                 <Link className="block hover:text-white" href="/recommendations">Recommendations</Link>
+                <Link className="block hover:text-white" href="/shop">Shop</Link>
               </>
             ) : (
               <>

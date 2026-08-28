@@ -8,6 +8,7 @@ import { createClient } from "@/lib/supabase/server";
 import { generateRecommendations } from "@/lib/recommendations/gemini";
 import { saveRecommendations } from "@/lib/recommendations/save";
 import { trackValidationEvent } from "@/lib/validation-events";
+import { ageRangeForAge } from "@/lib/occasions";
 
 const CreateEventSchema = z.object({
   occasion_type: z.enum([
@@ -28,9 +29,9 @@ const CreateEventSchema = z.object({
   }, "Choose a valid date within the next 10 years"),
   recipient_name: z.string().trim().min(1).max(100),
   relationship: z.string().trim().max(80).optional(),
-  age_range: z.string().trim().max(40).optional(),
+  age: z.number().int().min(0).max(120).optional(),
   gender: z.string().trim().max(80).optional(),
-  archetypes: z.array(z.string().trim().min(1).max(80)).max(8).default([]),
+  archetypes: z.array(z.string().trim().min(1).max(80)).max(15).default([]),
   interests: z.string().trim().max(2000).optional(),
   budget_tier: z.string().trim().max(40).optional(),
   past_gifts: z.string().trim().max(2000).optional()
@@ -42,6 +43,7 @@ export async function createEvent(input: CreateEventInput) {
   const validation = CreateEventSchema.safeParse(input);
   if (!validation.success) return { error: validation.error.issues[0]?.message ?? "Please check the event details" };
   const parsed = validation.data;
+  const ageRange = ageRangeForAge(parsed.age);
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
@@ -61,7 +63,8 @@ export async function createEvent(input: CreateEventInput) {
   const { error: profErr } = await supabase.from("recipient_profiles").insert({
     event_id: event.id,
     relationship: parsed.relationship || null,
-    age_range: parsed.age_range || null,
+    age: parsed.age ?? null,
+    age_range: ageRange,
     gender: parsed.gender || null,
     archetypes: parsed.archetypes,
     interests: parsed.interests || null,
@@ -80,7 +83,8 @@ export async function createEvent(input: CreateEventInput) {
       occasion_type: parsed.occasion_type,
       event_date: parsed.event_date,
       relationship: parsed.relationship,
-      age_range: parsed.age_range,
+      age: parsed.age,
+      age_range: ageRange,
       gender: parsed.gender,
       archetypes: parsed.archetypes,
       interests: parsed.interests,
@@ -111,7 +115,7 @@ export async function regenerateRecommendations(eventId: string) {
 
   const { data: profile } = await supabase
     .from("recipient_profiles")
-    .select("relationship, age_range, gender, archetypes, interests, budget_tier, past_gifts")
+    .select("relationship, age, age_range, gender, archetypes, interests, budget_tier, past_gifts")
     .eq("event_id", eventId)
     .maybeSingle();
 
@@ -120,6 +124,7 @@ export async function regenerateRecommendations(eventId: string) {
     occasion_type: event.occasion_type,
     event_date: event.event_date,
     relationship: profile?.relationship,
+    age: profile?.age,
     age_range: profile?.age_range,
     gender: profile?.gender,
     archetypes: profile?.archetypes ?? [],
@@ -129,6 +134,52 @@ export async function regenerateRecommendations(eventId: string) {
   });
   await saveRecommendations(supabase, eventId, recs);
   revalidatePath(`/events/${eventId}`);
+  return { ok: true };
+}
+
+export async function updateEventProfile(eventId: string, input: CreateEventInput) {
+  const validation = CreateEventSchema.safeParse(input);
+  if (!validation.success) return { error: validation.error.issues[0]?.message ?? "Please check the profile details" };
+  const parsed = validation.data;
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated" };
+
+  const { data: event } = await supabase
+    .from("events")
+    .select("id")
+    .eq("id", eventId)
+    .eq("user_id", user.id)
+    .maybeSingle();
+  if (!event) return { error: "Event not found" };
+
+  const { error: eventError } = await supabase
+    .from("events")
+    .update({
+      occasion_type: parsed.occasion_type,
+      event_date: parsed.event_date,
+      recipient_name: parsed.recipient_name
+    })
+    .eq("id", eventId)
+    .eq("user_id", user.id);
+  if (eventError) return { error: eventError.message };
+
+  const { error: profileError } = await supabase
+    .from("recipient_profiles")
+    .update({
+      relationship: parsed.relationship || null,
+      ...(parsed.age !== undefined ? { age: parsed.age, age_range: ageRangeForAge(parsed.age) } : {}),
+      gender: parsed.gender || null,
+      archetypes: parsed.archetypes,
+      interests: parsed.interests || null,
+      budget_tier: parsed.budget_tier || null,
+      past_gifts: parsed.past_gifts || null
+    })
+    .eq("event_id", eventId);
+  if (profileError) return { error: profileError.message };
+
+  revalidatePath(`/events/${eventId}`);
+  revalidatePath("/dashboard");
   return { ok: true };
 }
 
