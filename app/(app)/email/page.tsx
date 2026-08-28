@@ -62,7 +62,7 @@ export default async function EmailPreviewPage() {
       <div className="mx-auto mb-4 flex max-w-xl flex-col items-start gap-1 text-[11px] text-[#6b6358] sm:flex-row sm:items-center sm:gap-2 sm:text-xs"><span className="inline-flex items-center gap-2"><Mail size={14} /> Inbox · Reminder preview</span><span className="sm:ml-auto">From: {sender}</span></div>
       <article className="mx-auto max-w-xl overflow-hidden rounded-[18px] border border-cream-200 bg-white shadow-lift sm:rounded-[22px]">
         <header className="border-b border-cream-200 px-5 py-4 sm:px-7"><p className="text-[10px] font-bold tracking-[0.12em] text-primary-400">SUBJECT</p><p className="mt-1 text-sm font-bold leading-5 text-primary sm:text-base">{event.recipient_name}&apos;s {occasion.toLowerCase()} is in 7 days 🎁</p></header>
-        <div className="flex items-center justify-center gap-2.5 bg-primary px-5 py-4 text-center sm:px-7"><Image src="/emptyhanded-google-oauth-logo.png" alt="" width={42} height={42} className="rounded-xl" /><Logo inverted /></div>
+        <div className="flex items-center justify-center bg-primary px-5 py-5 text-center sm:px-7"><Logo inverted /></div>
         <div className="px-5 py-7 sm:px-9 sm:py-9">
           <div className="text-center"><span className="inline-flex max-w-full items-center gap-2 rounded-2xl bg-accent-100 px-3 py-1.5 text-[10px] font-bold leading-4 tracking-[0.05em] text-accent-700"><CalendarDays size={13} className="shrink-0" /> 7 DAYS UNTIL {recipientFirstName.toUpperCase()}&apos;S {occasion.toUpperCase()}</span></div>
           <h1 className="display-type mt-5 text-2xl font-black leading-tight tracking-[-0.035em] text-primary min-[390px]:text-3xl">Hey {accountFirstName} — don&apos;t show up empty handed.</h1>
