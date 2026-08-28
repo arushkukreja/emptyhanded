@@ -1,0 +1,77 @@
+<template>
+  <div data-hf-id="hf-urza" id="root" data-composition-id="05-handled" data-width="1920" data-height="1080" data-start="0" data-duration="4.5">
+    <div data-hf-id="hf-nain" id="order-ground" class="clip order-ground" data-start="0" data-duration="4.5" data-track-index="0"></div>
+    <div data-hf-id="hf-txpc" id="order-stage" class="clip order-stage" data-start="0" data-duration="4.5" data-track-index="1">
+      <div data-hf-id="hf-mwvx" id="checkout-panel" class="order-panel checkout-panel">
+        <div data-hf-id="hf-vytp" class="eyebrow">CHECKOUT</div>
+        <h2 data-hf-id="hf-8ym6">Review and place the order</h2>
+        <div data-hf-id="hf-ya6z" class="order-summary">
+          <div data-hf-id="hf-9zgn" class="summary-thumb" aria-label="Snail Mucin Eye Cream"><div data-hf-id="hf-kvvb" class="summary-thumb-image"></div></div>
+          <div data-hf-id="hf-yeow"><strong data-hf-id="hf-fi2s">Snail Mucin Eye Cream</strong><span data-hf-id="hf-yp9a">Gift for Maya · Standard delivery</span></div>
+        </div>
+        <div data-hf-id="hf-vabk" class="delivery"><span data-hf-id="hf-2en7">DELIVER TO</span><strong data-hf-id="hf-p2p2">Maya Patel</strong><small data-hf-id="hf-7b5z">Arrives before September 1</small></div>
+        <div data-hf-id="hf-httz" id="place-order-button" class="action-button place-order">PLACE ORDER</div>
+      </div>
+
+      <div data-hf-id="hf-cjx6" id="order-confirmation" class="order-confirmation" data-layout-allow-overflow="">
+        <div data-hf-id="hf-ncqo" class="confirmation-mark">✓</div>
+        <div data-hf-id="hf-ar0c" class="eyebrow">ORDER PLACED</div>
+        <h2 data-hf-id="hf-8etw">Maya’s gift is on the way.</h2>
+      </div>
+
+      <div data-hf-id="hf-ad8r" id="order-cursor" class="order-cursor" aria-hidden="true"></div>
+    </div>
+  </div>
+
+  <style>
+    @font-face { font-family: "Fraunces"; src: url("capture/assets/fonts/Fraunces-Regular.ttf") format("truetype"); font-weight: 400; }
+    @font-face { font-family: "Plus Jakarta Sans"; src: url("capture/assets/fonts/Plus_Jakarta_Sans-Regular.ttf") format("truetype"); font-weight: 400; }
+    #root { position: relative; width: 1920px; height: 1080px; overflow: hidden; color: #0f172a; }
+    #root * { box-sizing: border-box; }
+    .order-ground { position: absolute; inset: 0; background: #f5f0e7; }
+    .order-stage { position: absolute; inset: 0; overflow: hidden; }
+    .order-panel { position: absolute; left: 150px; top: 150px; width: 1620px; height: 760px; background: #fffefc; border: 1px solid #e7e1d8; box-shadow: 0 26px 70px rgba(15,23,42,.12); opacity: 0; }
+    .eyebrow { font: 700 20px/1 "Plus Jakarta Sans"; letter-spacing: .25em; color: #b45309; }
+    h2 { margin: 36px 0 26px; font: 400 92px/1.02 "Fraunces"; letter-spacing: -.04em; }
+    h2 span { display: block; }
+    .action-button { width: 520px; height: 78px; display: flex; align-items: center; justify-content: center; background: #f59e0b; color: #0f172a; font: 700 20px/1 "Plus Jakarta Sans"; letter-spacing: .18em; }
+    .checkout-panel { padding: 78px 86px; }
+    .checkout-panel h2 { font-size: 72px; margin: 28px 0 44px; }
+    .order-summary { width: 930px; height: 180px; display: flex; align-items: center; gap: 32px; padding: 24px; border: 1px solid #e7e1d8; background: #f5f0e7; }
+    .summary-thumb { width: 132px; height: 132px; overflow: hidden; background: #fff; position: relative; }
+    .summary-thumb-image { position: absolute; inset: 0; background-image: url("assets/snail-eye-cream.png"); background-size: contain; background-position: center; background-repeat: no-repeat; }
+    .order-summary strong { display: block; font: 700 28px/1.2 "Plus Jakarta Sans"; }
+    .order-summary span { display: block; margin-top: 12px; font: 400 20px/1.3 "Plus Jakarta Sans"; color: #52627a; }
+    .delivery { position: absolute; right: 88px; top: 224px; width: 440px; padding: 28px 0; border-top: 1px solid #e7e1d8; border-bottom: 1px solid #e7e1d8; }
+    .delivery span, .delivery strong, .delivery small { display: block; font-family: "Plus Jakarta Sans"; }
+    .delivery span { font-size: 15px; letter-spacing: .2em; color: #b45309; }
+    .delivery strong { margin-top: 22px; font-size: 30px; }
+    .delivery small { margin-top: 12px; font-size: 19px; color: #64748b; }
+    .place-order { position: absolute; right: 88px; bottom: 78px; }
+    .order-confirmation { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; opacity: 0; }
+    .confirmation-mark { width: 150px; height: 150px; margin-bottom: 40px; display: flex; align-items: center; justify-content: center; border: 7px solid #f59e0b; border-radius: 50%; color: #b45309; font: 700 76px/1 "Plus Jakarta Sans"; }
+    .order-confirmation h2 { margin-top: 28px; font-size: 108px; }
+    .order-cursor { position: absolute; left: 1380px; top: 700px; width: 38px; height: 52px; background: #0f172a; clip-path: polygon(0 0, 100% 72%, 56% 76%, 40% 100%); filter: drop-shadow(0 4px 6px rgba(0,0,0,.24)); opacity: 0; }
+  </style>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  <script>
+    (() => {
+      const checkout = document.getElementById("checkout-panel");
+      const confirmation = document.getElementById("order-confirmation");
+      const cursor = document.getElementById("order-cursor");
+      const placeButton = document.getElementById("place-order-button");
+      const tl = gsap.timeline({ paused: true });
+      tl.fromTo(checkout, { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.34, ease: "power3.out", immediateRender: false }, 0.08);
+      tl.set(cursor, { opacity: 1, x: -420, y: -88 }, 0.5);
+      tl.to(cursor, { x: 35, y: 80, duration: 0.4, ease: "power2.inOut" }, 0.62);
+      tl.to(placeButton, { scale: 0.96, duration: 0.12, ease: "power1.in" }, 1.18);
+      tl.to(placeButton, { scale: 1, duration: 0.12, ease: "power1.out" }, 1.32);
+      tl.to(cursor, { opacity: 0, duration: 0.1, ease: "none" }, 1.5);
+      tl.to(checkout, { opacity: 0, duration: 0.12, ease: "none" }, 1.66);
+      tl.fromTo(confirmation, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.42, ease: "power3.out", immediateRender: false }, 1.88);
+      tl.to({}, { duration: 4.5 }, 0);
+      window.__timelines["05-handled"] = tl;
+    })();
+  </script>
+</template>

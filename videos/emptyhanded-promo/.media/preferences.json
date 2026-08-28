@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "preferences": {
+    "flow": {
+      "value": "automation",
+      "confirmed_in": [
+        "emptyhanded-promo"
+      ],
+      "updated_at": "2026-08-26T03:45:13.735Z"
+    },
+    "storyboard": {
+      "value": "no",
+      "confirmed_in": [
+        "emptyhanded-promo"
+      ],
+      "updated_at": "2026-08-26T03:45:13.769Z"
+    }
+  },
+  "sightings": {}
+}

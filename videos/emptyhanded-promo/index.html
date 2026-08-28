@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1920, height=1080">
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js" integrity="sha384-sG0Hv1tP1lZCk9KQmrIbY/XNwi+OY84GQqhMscbnsoBFqAz8KNCil1kvfL3Hbbk2" crossorigin="anonymous"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #000;
+      }
+      #root {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #FFFFFF;
+      }
+      .scene {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div data-hf-id="hf-j7pz" id="root" data-composition-id="main" data-start="0" data-duration="30" data-width="1920" data-height="1080">
+      <div data-hf-id="hf-iehf" id="el-01-seven-days" class="scene" data-composition-id="01-seven-days" data-composition-src="compositions/frames/01-seven-days.html" data-start="0" data-duration="4" data-track-index="1"></div>
+
+      <div data-hf-id="hf-k2y0" id="el-03-knows-maya" class="scene" data-composition-id="03-knows-maya" data-composition-src="compositions/frames/03-knows-maya.html" data-start="4.4" data-duration="8.5" data-track-index="1"></div>
+
+      <div data-hf-id="hf-vn78" id="el-04-personal-picks" class="scene" data-composition-id="04-personal-picks" data-composition-src="compositions/frames/04-personal-picks.html" data-start="12.9" data-duration="6.5" data-track-index="1"></div>
+
+      <div data-hf-id="hf-gdmj" id="el-05-handled" class="scene" data-composition-id="05-handled" data-composition-src="compositions/frames/05-handled.html" data-start="19.4" data-duration="4.5" data-track-index="1"></div>
+
+      <div data-hf-id="hf-z7gc" id="el-06-emptyhanded" class="scene" data-composition-id="06-emptyhanded" data-composition-src="compositions/frames/06-emptyhanded.html" data-start="23.9" data-duration="6.1" data-track-index="1"></div>
+
+      <!-- SFX -->
+      <audio data-hf-id="hf-5dy8" id="el-sfx-0" src="assets/sfx/notification-chime.mp3" data-start="0.12" data-duration="2.5" data-track-index="20" data-volume="0.14"></audio>
+      <audio data-hf-id="hf-bbi7" id="el-sfx-1" src="assets/sfx/click-soft.mp3" data-start="3.48" data-duration="0.37" data-track-index="21" data-volume="0.2"></audio>
+      <audio data-hf-id="hf-eetw" id="el-sfx-2" src="assets/sfx/whoosh-short.mp3" data-start="4.14" data-duration="0.57" data-track-index="22" data-volume="0.16"></audio>
+      <audio data-hf-id="hf-2icj" id="el-sfx-3" src="assets/sfx/typing-budget.wav" data-start="4.85" data-duration="1.14" data-track-index="23" data-volume="0.18"></audio>
+      <audio data-hf-id="hf-dst3" id="el-sfx-4" src="assets/sfx/typing-tastes.wav" data-start="7.12" data-duration="2.08" data-track-index="24" data-volume="0.16"></audio>
+      <audio data-hf-id="hf-vmtm" id="el-sfx-5" src="assets/sfx/typing-payoff.wav" data-start="10.52" data-duration="1.61" data-track-index="25" data-volume="0.18"></audio>
+      <audio data-hf-id="hf-wts3" id="el-sfx-6" src="assets/sfx/click-soft.mp3" data-start="14.04" data-duration="0.37" data-track-index="26" data-volume="0.18"></audio>
+      <audio data-hf-id="hf-yok1" id="el-sfx-7" src="assets/sfx/click-soft.mp3" data-start="15.52" data-duration="0.37" data-track-index="27" data-volume="0.18"></audio>
+      <audio data-hf-id="hf-ymu1" id="el-sfx-8" src="assets/sfx/click-soft.mp3" data-start="17.86" data-duration="0.37" data-track-index="28" data-volume="0.22"></audio>
+      <audio data-hf-id="hf-go5x" id="el-sfx-9" src="assets/sfx/pop.mp3" data-start="18.48" data-duration="0.67" data-track-index="29" data-volume="0.14"></audio>
+      <audio data-hf-id="hf-zdxv" id="el-sfx-10" src="assets/sfx/click-soft.mp3" data-start="20.58" data-duration="0.37" data-track-index="30" data-volume="0.22"></audio>
+      <audio data-hf-id="hf-gubv" id="el-sfx-11" src="assets/sfx/chime.mp3" data-start="21.28" data-duration="2.5" data-track-index="31" data-volume="0.12"></audio>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      window.__timelines["main"] = gsap.timeline({ paused: true });
+    </script>
+  </body>
+</html>

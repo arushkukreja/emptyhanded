@@ -1,0 +1,110 @@
+<template>
+  <div data-hf-id="hf-sfkb" id="root" data-composition-id="03-knows-maya" data-width="1920" data-height="1080" data-start="0" data-duration="8.5">
+    <div data-hf-id="hf-a34d" id="story-ground" class="clip story-ground" data-start="0" data-duration="8.5" data-track-index="0"></div>
+    <div data-hf-id="hf-527s" id="story-stage" class="clip story-stage" data-start="0" data-duration="8.5" data-track-index="1">
+      <div data-hf-id="hf-jv8m" id="story-kicker" class="story-kicker">A LITTLE CONTEXT GOES A LONG WAY</div>
+      <div data-hf-id="hf-nfze" class="story-rule"></div>
+      <div data-hf-id="hf-dkqo" class="story-copy" aria-label="Her gift budget is set to fifty to one hundred dollars. She loves skincare, slow mornings, cozy home finds, and books. So let’s find her something that feels personal.">
+        <div data-hf-id="hf-nz6d" id="story-sentence-budget" class="story-sentence sentence-budget">
+          <span data-hf-id="hf-jeie" class="sentence-lead" data-type="">Her gift budget is set to </span>
+          <span data-hf-id="hf-2y4g" class="sentence-emphasis" data-type="">$50–100.</span>
+        </div>
+
+        <div data-hf-id="hf-8xcz" id="story-sentence-taste" class="story-sentence sentence-taste">
+          <span data-hf-id="hf-ph2w" class="sentence-lead" data-type="">She loves </span>
+          <span data-hf-id="hf-fugx" class="sentence-emphasis interests">
+            <span data-hf-id="hf-int1" class="interest-line" data-type="">skincare, slow mornings,</span>
+            <span data-hf-id="hf-int2" class="interest-line" data-type="">cozy home finds, and books.</span>
+          </span>
+        </div>
+
+        <div data-hf-id="hf-bz0d" id="story-sentence-payoff" class="story-sentence sentence-payoff">
+          <span data-hf-id="hf-x2yy" class="sentence-lead" data-type="">So let’s find her </span>
+          <span data-hf-id="hf-zt9y" class="sentence-emphasis payoff" data-type="">something that feels personal.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    @font-face { font-family: "Fraunces"; src: url("capture/assets/fonts/Fraunces-Regular.ttf") format("truetype"); font-weight: 400; }
+    @font-face { font-family: "Plus Jakarta Sans"; src: url("capture/assets/fonts/Plus_Jakarta_Sans-Regular.ttf") format("truetype"); font-weight: 400; }
+    #root { position: relative; width: 1920px; height: 1080px; overflow: hidden; color: #fffefc; }
+    #root * { box-sizing: border-box; }
+    .story-ground { position: absolute; inset: 0; background: #0f172a; }
+    .story-ground::after { content: ""; position: absolute; width: 960px; height: 960px; right: -180px; top: 40px; background: radial-gradient(circle, rgba(245,158,11,.21), transparent 68%); }
+    .story-stage { position: absolute; inset: 0; overflow: hidden; padding: 112px 160px 96px; }
+    .story-kicker { font: 700 21px/1 "Plus Jakarta Sans"; letter-spacing: .28em; color: #f59e0b; opacity: 0; }
+    .story-rule { width: 1600px; height: 1px; margin-top: 40px; background: rgba(255,255,255,.22); }
+    .story-copy { position: relative; width: 1600px; height: 790px; overflow: hidden; }
+    .story-sentence { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; opacity: 0; }
+    .sentence-lead { display: block; min-height: 88px; font: 400 72px/1.08 "Plus Jakarta Sans"; letter-spacing: -.035em; color: #fffefc; }
+    .sentence-emphasis { display: block; margin-top: 20px; font: italic 400 190px/.9 "Fraunces"; letter-spacing: -.055em; color: #f59e0b; }
+    .sentence-emphasis.interests { width: 1560px; font-size: 94px; line-height: .97; }
+    .interest-line { display: block; white-space: nowrap; }
+    .sentence-emphasis.payoff { width: 1560px; font-size: 132px; line-height: .92; }
+    .type-char { display: inline-block; opacity: 0; }
+    .type-word { display: inline-block; white-space: nowrap; }
+    .type-space { display: inline-block; opacity: 0; }
+  </style>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  <script>
+    (() => {
+      const kicker = document.getElementById("story-kicker");
+      const budget = document.getElementById("story-sentence-budget");
+      const taste = document.getElementById("story-sentence-taste");
+      const payoff = document.getElementById("story-sentence-payoff");
+      const tl = gsap.timeline({ paused: true });
+      const CHARACTER_INTERVAL = 1 / 30;
+
+      const buildCharacters = (sentence) => {
+        const characters = [];
+        sentence.querySelectorAll("[data-type]").forEach((segment) => {
+          const parts = segment.textContent.match(/\S+|\s+/g) || [];
+          segment.textContent = "";
+          parts.forEach((part) => {
+            if (/^\s+$/.test(part)) {
+              const space = document.createElement("span");
+              space.className = "type-space";
+              space.textContent = "\u00a0";
+              segment.appendChild(space);
+              characters.push(space);
+              return;
+            }
+            const word = document.createElement("span");
+            word.className = "type-word";
+            Array.from(part).forEach((character) => {
+              const span = document.createElement("span");
+              span.className = "type-char";
+              span.textContent = character;
+              word.appendChild(span);
+              characters.push(span);
+            });
+            segment.appendChild(word);
+          });
+        });
+        return characters;
+      };
+
+      const typeSentence = (sentence, characters, start, end) => {
+        tl.set(sentence, { opacity: 1 }, start);
+        characters.forEach((character, index) => {
+          tl.set(character, { opacity: 1 }, start + 0.03 + index * CHARACTER_INTERVAL);
+        });
+        if (end !== null) tl.set(sentence, { opacity: 0 }, end);
+      };
+
+      const budgetCharacters = buildCharacters(budget);
+      const tasteCharacters = buildCharacters(taste);
+      const payoffCharacters = buildCharacters(payoff);
+
+      tl.fromTo(kicker, { opacity: 0, x: -16 }, { opacity: 1, x: 0, duration: 0.18, ease: "power3.out", immediateRender: false }, 0.04);
+      typeSentence(budget, budgetCharacters, 0.45, 2.55);
+      typeSentence(taste, tasteCharacters, 2.72, 5.95);
+      typeSentence(payoff, payoffCharacters, 6.12, null);
+      tl.to({}, { duration: 8.5 }, 0);
+      window.__timelines["03-knows-maya"] = tl;
+    })();
+  </script>
+</template>

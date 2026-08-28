@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>EmptyHanded — Design Prototype v3</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,400;1,9..144,700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0F172A;--navy-2:#1E293B;--navy-3:#334155;
+  --amber:#F59E0B;--amber-l:#FEF3C7;--amber-d:#D97706;
+  --cream:#FAF8F4;--white:#FFFFFF;--wgray:#F5F0E8;
+  --t1:#0F172A;--t2:#475569;--t3:#94A3B8;
+  --bdr:#E8E2D9;--sh:0 4px 24px rgba(15,23,42,.08);--sh2:0 16px 48px rgba(15,23,42,.14);
+  --r:16px;--rs:10px;--rp:100px;--nh:62px;
+}
+html,body{font-family:'DM Sans',system-ui,sans-serif;background:var(--cream);color:var(--t1);-webkit-font-smoothing:antialiased;scroll-behavior:smooth}
+button{font-family:inherit;cursor:pointer;border:none;outline:none}
+input,textarea,select{font-family:inherit;outline:none;border:none}
+img{display:block}
+a{text-decoration:none;color:inherit;cursor:pointer}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:99px}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes floatA{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes floatB{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-8px) rotate(2deg)}}
+@keyframes floatC{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes pulseU{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+@keyframes scIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes tfIn{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+@keyframes mIn{from{opacity:0;transform:scale(.96) translateY(12px)}to{opacity:1;transform:scale(1) translateY(0)}}
+@keyframes ovIn{from{opacity:0}to{opacity:1}}
+@keyframes fabSpin{from{transform:rotate(0deg)}to{transform:rotate(90deg)}}
+
+.sc-in{animation:scIn .35s cubic-bezier(.16,1,.3,1) both}
+.a1{animation:fadeUp .55s cubic-bezier(.16,1,.3,1) .05s both}
+.a2{animation:fadeUp .55s cubic-bezier(.16,1,.3,1) .12s both}
+.a3{animation:fadeUp .55s cubic-bezier(.16,1,.3,1) .2s both}
+.a4{animation:fadeUp .55s cubic-bezier(.16,1,.3,1) .28s both}
+.a5{animation:fadeUp .55s cubic-bezier(.16,1,.3,1) .36s both}
+.a6{animation:fadeUp .55s cubic-bezier(.16,1,.3,1) .44s both}
+.sa{opacity:0;transform:translateY(26px);transition:opacity .6s ease,transform .6s cubic-bezier(.16,1,.3,1)}
+.sa.d1{transition-delay:.1s}.sa.d2{transition-delay:.2s}.sa.d3{transition-delay:.3s}
+.sa.vis{opacity:1;transform:none}
+
+/* SHARED */
+.btn-navy{background:var(--navy);color:#fff;border-radius:var(--rp);padding:12px 24px;font-size:14px;font-weight:600;letter-spacing:-.01em;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
+.btn-navy:hover{background:var(--navy-2);transform:translateY(-1px);box-shadow:0 8px 24px rgba(15,23,42,.2)}
+.btn-amber{background:var(--amber);color:var(--navy);border-radius:var(--rp);padding:12px 24px;font-size:14px;font-weight:600;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
+.btn-amber:hover{background:var(--amber-d);transform:translateY(-1px);box-shadow:0 8px 24px rgba(245,158,11,.28)}
+.btn-outline{background:transparent;color:var(--navy);border:1.5px solid var(--navy);border-radius:var(--rp);padding:11px 24px;font-size:14px;font-weight:600;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
+.btn-outline:hover{background:var(--navy);color:#fff}
+.badge-am{background:var(--amber-l);color:#92400E;font-size:11px;font-weight:700;padding:4px 10px;border-radius:var(--rp);display:inline-block}
+.badge-nv{background:#EEF2FF;color:#3730A3;font-size:11px;font-weight:700;padding:4px 10px;border-radius:var(--rp);display:inline-block}
+.badge-urg{background:#FEE2E2;color:#991B1B;font-size:11px;font-weight:700;padding:4px 10px;border-radius:var(--rp);display:inline-block;animation:pulseU 2s ease-in-out infinite}
+.badge-ok{background:#F0FDF4;color:#166534;font-size:11px;font-weight:700;padding:4px 10px;border-radius:var(--rp);display:inline-block}
+
+/* NAV */
+.nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(250,248,244,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--bdr);height:var(--nh)}
+.nav-inner{max-width:1280px;margin:0 auto;padding:0 28px;height:100%;display:flex;align-items:center;gap:3px}
+.nav-logo{font-family:'Fraunces',serif;font-size:18px;font-weight:800;color:var(--navy);margin-right:16px;white-space:nowrap;flex-shrink:0;cursor:pointer}
+.nav-logo span{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--amber);margin-left:2px;vertical-align:middle;margin-bottom:2px}
+.nav-tab{padding:6px 13px;border-radius:var(--rp);font-size:13px;font-weight:500;color:var(--t2);background:none;border:none;cursor:pointer;white-space:nowrap;transition:all .18s}
+.nav-tab:hover{background:var(--wgray);color:var(--navy)}
+.nav-tab.act{background:var(--navy);color:#fff}
+.nav-sp{flex:1}
+.nav-auth{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.nav-login{padding:7px 14px;border-radius:var(--rp);font-size:13px;font-weight:600;color:var(--t2);background:none;border:none;cursor:pointer;transition:color .2s}
+.nav-login:hover{color:var(--navy)}
+.nav-signup{background:var(--navy);color:#fff;border-radius:var(--rp);padding:7px 16px;font-size:13px;font-weight:600;border:none;cursor:pointer;transition:all .2s}
+.nav-signup:hover{background:var(--navy-2)}
+/* signed in nav */
+.nav-profile{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.nav-notif{width:34px;height:34px;border-radius:50%;background:var(--wgray);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;transition:all .2s;position:relative}
+.nav-notif:hover{background:var(--bdr)}
+.notif-dot{position:absolute;top:7px;right:7px;width:7px;height:7px;border-radius:50%;background:#EF4444;border:2px solid var(--cream)}
+.nav-av{width:34px;height:34px;border-radius:50%;background:var(--amber-l);color:#92400E;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;border:2px solid var(--amber-l);transition:border-color .2s}
+.nav-av:hover{border-color:var(--amber)}
+
+/* MINI CALENDAR (hero) */
+.mini-cal{background:var(--white);border-radius:14px;border:1px solid var(--bdr);padding:14px 13px;width:262px;box-shadow:var(--sh)}
+.cal-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.cal-month{font-family:'Fraunces',serif;font-size:13px;font-weight:700;color:var(--navy)}
+.cal-nb{background:none;border:none;cursor:pointer;color:var(--t3);font-size:14px;padding:2px 6px;border-radius:6px;transition:all .15s}
+.cal-nb:hover{background:var(--wgray);color:var(--navy)}
+.cal-dow{display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:5px}
+.cal-dow span{text-align:center;font-size:10px;font-weight:700;color:var(--t3)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px}
+.cc{text-align:center;padding:4px 2px;font-size:11px;font-weight:500;color:var(--t2);border-radius:6px;position:relative;cursor:default;min-height:26px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.cc.today{background:var(--navy);color:#fff;font-weight:700}
+.cc.ev{color:#92400E;font-weight:700}.cc.ev-u{color:#991B1B;font-weight:700}
+.cc .dot{width:3px;height:3px;border-radius:50%;background:var(--amber);margin-top:1px}
+.cc.ev-u .dot{background:#EF4444}.cc.today .dot{background:rgba(255,255,255,.65)}
+.cal-leg{margin-top:10px;padding-top:9px;border-top:1px solid var(--bdr);display:flex;flex-direction:column;gap:4px}
+.cal-leg-i{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--t2)}
+.cal-leg-d{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+
+/* HERO */
+.hero{max-width:1280px;margin:0 auto;padding:80px 40px 60px;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;min-height:calc(100vh - var(--nh))}
+.hero h1{font-family:'Fraunces',serif;font-size:60px;font-weight:900;line-height:1;letter-spacing:-.03em;color:var(--navy)}
+.hero h1 em{font-style:italic;color:var(--amber)}
+.hero-sub{font-size:17px;color:var(--t2);line-height:1.68;margin:20px 0 30px;max-width:420px}
+.hero-form{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.hero-inp{background:var(--white);border:1.5px solid var(--bdr);border-radius:var(--rp);padding:12px 20px;font-size:14px;color:var(--navy);width:238px;transition:border-color .2s}
+.hero-inp:focus{border-color:var(--amber)}
+.hero-r{position:relative;height:530px}
+.hc-cal{position:absolute;top:0;left:10px;z-index:2;animation:floatA 5s ease-in-out infinite}
+.hc-picks{position:absolute;top:16px;right:0;z-index:3;background:var(--white);border-radius:15px;border:1px solid var(--bdr);padding:16px;width:210px;box-shadow:var(--sh);animation:floatB 5.5s ease-in-out 1s infinite}
+.hc-profile{position:absolute;bottom:8px;left:0;z-index:3;background:var(--white);border-radius:15px;border:1px solid var(--bdr);padding:15px;width:230px;box-shadow:var(--sh);animation:floatC 4.5s ease-in-out .5s infinite}
+.hc-badge{position:absolute;top:6px;right:4px;z-index:4;background:var(--amber);color:var(--navy);padding:8px 13px;border-radius:var(--rp);font-size:11px;font-weight:700;box-shadow:0 6px 18px rgba(245,158,11,.38);animation:floatA 3.5s ease-in-out 2s infinite}
+
+/* LANDING SECTIONS */
+.lsec{padding:88px 40px}
+.lsec-in{max-width:1280px;margin:0 auto}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--amber);margin-bottom:12px}
+.sec-h{font-family:'Fraunces',serif;font-size:44px;font-weight:700;color:var(--navy);letter-spacing:-.025em;line-height:1.1;margin-bottom:12px}
+.steps-g{display:grid;grid-template-columns:repeat(3,1fr);gap:40px}
+.sn{font-family:'Fraunces',serif;font-size:50px;font-weight:900;color:var(--amber-l);line-height:1;margin-bottom:12px}
+.st{font-family:'Fraunces',serif;font-size:21px;font-weight:700;color:var(--navy);margin-bottom:9px}
+.sd{font-size:15px;color:var(--t2);line-height:1.68}
+.feat-strip{background:var(--navy);padding:76px 40px}
+.feat-in{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:44px}
+.fi-icon{font-size:34px;margin-bottom:14px}
+.fi-t{font-family:'Fraunces',serif;font-size:19px;font-weight:700;color:#fff;margin-bottom:7px}
+.fi-d{font-size:14px;color:rgba(255,255,255,.55);line-height:1.65}
+.price-g{display:grid;grid-template-columns:1fr 1fr;gap:18px;max-width:740px;margin:0 auto}
+.pc{background:var(--white);border-radius:22px;border:1px solid var(--bdr);padding:34px}
+.pc.feat{border:2px solid var(--navy);background:var(--navy)}
+.pc-plan{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--t3);margin-bottom:10px}
+.pc.feat .pc-plan{color:rgba(255,255,255,.45)}
+.pc-amt{font-family:'Fraunces',serif;font-size:50px;font-weight:900;color:var(--navy);line-height:1}
+.pc.feat .pc-amt{color:#fff}
+.pc-per{font-size:13px;color:var(--t3);margin-bottom:26px;margin-top:3px}
+.pc.feat .pc-per{color:rgba(255,255,255,.4)}
+.pc-f{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--t2);margin-bottom:10px}
+.pc.feat .pc-f{color:rgba(255,255,255,.75)}
+.ck{width:16px;height:16px;border-radius:50%;background:var(--amber-l);display:flex;align-items:center;justify-content:center;font-size:9px;color:#92400E;flex-shrink:0;font-weight:700}
+.pc.feat .ck{background:rgba(245,158,11,.18);color:var(--amber)}
+
+/* FOOTER */
+footer{background:var(--navy);padding:56px 40px 0}
+.foot-in{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:44px;padding-bottom:44px;border-bottom:1px solid rgba(255,255,255,.1)}
+.foot-logo{font-family:'Fraunces',serif;font-size:20px;font-weight:800;color:#fff;margin-bottom:10px}
+.foot-logo span{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--amber);margin-left:2px;vertical-align:middle;margin-bottom:2px}
+.foot-tag{font-size:13px;color:rgba(255,255,255,.45);line-height:1.65;margin-bottom:22px;max-width:220px}
+.foot-ct{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:14px}
+.foot-lk{display:block;font-size:13px;color:rgba(255,255,255,.6);margin-bottom:9px;cursor:pointer;transition:color .2s}
+.foot-lk:hover{color:#fff}
+.foot-bot{max-width:1280px;margin:0 auto;padding:18px 0;display:flex;align-items:center;justify-content:space-between}
+.foot-copy{font-size:12px;color:rgba(255,255,255,.3)}
+.foot-leg{display:flex;gap:18px}
+.foot-leg a{font-size:12px;color:rgba(255,255,255,.3);cursor:pointer;transition:color .2s}
+.foot-leg a:hover{color:rgba(255,255,255,.65)}
+
+/* DASHBOARD */
+.dash{max-width:1280px;margin:0 auto;padding:calc(var(--nh) + 32px) 40px 0}
+.dash-hd{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px}
+.dash-greet-sub{font-size:12px;color:var(--t3);margin-bottom:4px;font-weight:500}
+.dash-greet{font-family:'Fraunces',serif;font-size:32px;font-weight:700;color:var(--navy);letter-spacing:-.02em;line-height:1.15}
+.dash-greet em{font-style:italic;color:var(--amber)}
+/* stats row */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.stat-card{background:var(--white);border-radius:var(--rs);border:1px solid var(--bdr);padding:16px 18px;transition:all .2s}
+.stat-card:hover{box-shadow:var(--sh)}
+.stat-num{font-family:'Fraunces',serif;font-size:28px;font-weight:700;color:var(--navy);letter-spacing:-.02em}
+.stat-lbl{font-size:12px;color:var(--t3);margin-top:2px;font-weight:500}
+.stat-card.urg .stat-num{color:#DC2626}
+.stat-card.urg .stat-lbl{color:#FCA5A5}
+/* urgent banner */
+.urg-banner{background:var(--navy);border-radius:var(--r);padding:18px 24px;display:flex;align-items:center;gap:16px;margin-bottom:28px;position:relative;overflow:hidden}
+.urg-banner::before{content:'';position:absolute;right:-20px;top:-20px;width:120px;height:120px;background:rgba(245,158,11,.08);border-radius:50%}
+.urg-banner::after{content:'';position:absolute;right:20px;bottom:-30px;width:80px;height:80px;background:rgba(245,158,11,.06);border-radius:50%}
+.urg-txt-main{font-size:15px;font-weight:700;color:#fff}
+.urg-txt-sub{font-size:12px;color:rgba(255,255,255,.55);margin-top:2px}
+/* filter tabs */
+.filter-tabs{display:flex;gap:4px;margin-bottom:20px}
+.ftab{padding:6px 14px;border-radius:var(--rp);font-size:12px;font-weight:600;background:none;border:none;cursor:pointer;color:var(--t2);transition:all .18s}
+.ftab:hover{background:var(--wgray)}
+.ftab.act{background:var(--navy);color:#fff}
+/* compact event list */
+.evt-list{display:flex;flex-direction:column;gap:8px;margin-bottom:40px}
+.el-item{background:var(--white);border-radius:var(--rs);border:1px solid var(--bdr);padding:14px 18px;display:grid;grid-template-columns:auto 1fr auto auto;gap:14px;align-items:center;cursor:pointer;transition:all .22s cubic-bezier(.16,1,.3,1);position:relative;overflow:hidden}
+.el-item::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--amber);transform:scaleY(0);transition:transform .25s ease;transform-origin:center}
+.el-item:hover{transform:translateX(4px);box-shadow:var(--sh)}
+.el-item:hover::before{transform:scaleY(1)}
+.el-av{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.el-name{font-size:15px;font-weight:700;color:var(--navy);letter-spacing:-.01em}
+.el-meta{font-size:12px;color:var(--t3);margin-top:2px;display:flex;align-items:center;gap:8px}
+.el-meta-dot{width:3px;height:3px;border-radius:50%;background:var(--t3)}
+.el-saved{font-size:11px;color:var(--amber-d);font-weight:600;margin-top:3px;display:flex;align-items:center;gap:4px}
+.el-right{text-align:right}
+.el-cta{font-size:12px;font-weight:600;color:var(--t3);margin-top:4px;white-space:nowrap}
+.el-item:hover .el-cta{color:var(--navy)}
+/* section heading row */
+.sec-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.sec-lbl{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--t3);display:flex;align-items:center;gap:8px}
+.cnt-pill{background:var(--navy);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px}
+/* FAB */
+.fab{position:fixed;bottom:28px;right:28px;width:54px;height:54px;border-radius:50%;background:var(--navy);color:#fff;font-size:26px;box-shadow:0 8px 24px rgba(15,23,42,.28);z-index:150;display:flex;align-items:center;justify-content:center;transition:all .25s cubic-bezier(.16,1,.3,1);border:none;cursor:pointer;line-height:1}
+.fab:hover{background:var(--amber);color:var(--navy);transform:scale(1.1) rotate(90deg);box-shadow:0 12px 32px rgba(245,158,11,.38)}
+
+/* TYPEFORM */
+.tf-wrap{min-height:100vh;display:flex;flex-direction:column;background:var(--cream);padding-top:var(--nh)}
+.tf-prog-bar{height:3px;background:var(--bdr);position:relative}
+.tf-prog-fill{height:100%;background:var(--amber);transition:width .4s cubic-bezier(.16,1,.3,1);border-radius:0 99px 99px 0}
+.tf-step-area{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px 60px}
+.tf-content{animation:tfIn .4s cubic-bezier(.16,1,.3,1) both;width:100%;max-width:600px;display:flex;flex-direction:column;align-items:center;text-align:center}
+.tf-q{font-family:'Fraunces',serif;font-size:38px;font-weight:700;color:var(--navy);letter-spacing:-.025em;margin-bottom:10px;line-height:1.1}
+.tf-sub{font-size:15px;color:var(--t2);margin-bottom:36px}
+.tf-hint{font-size:12px;color:var(--t3);margin-top:14px}
+.tf-inp{background:var(--white);border:2px solid var(--bdr);border-radius:var(--r);padding:16px 20px;font-size:18px;color:var(--navy);width:100%;max-width:460px;transition:border-color .2s;text-align:left;font-family:'DM Sans',sans-serif}
+.tf-inp:focus{border-color:var(--amber);outline:none;box-shadow:0 0 0 4px rgba(245,158,11,.1)}
+.tf-textarea{background:var(--white);border:2px solid var(--bdr);border-radius:var(--r);padding:16px 20px;font-size:16px;color:var(--navy);width:100%;max-width:460px;transition:border-color .2s;resize:none;font-family:'DM Sans',sans-serif;min-height:120px}
+.tf-textarea:focus{border-color:var(--amber);outline:none;box-shadow:0 0 0 4px rgba(245,158,11,.1)}
+.tf-occ-g{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;width:100%;max-width:520px}
+.tf-oi{background:var(--white);border:2px solid var(--bdr);border-radius:var(--rs);padding:16px 10px;text-align:center;cursor:pointer;transition:all .2s}
+.tf-oi:hover{border-color:var(--amber-d);background:var(--amber-l)}
+.tf-oi.sel{border-color:var(--navy);background:var(--navy)}
+.tf-oi-em{font-size:26px;margin-bottom:6px}
+.tf-oi-lb{font-size:12px;font-weight:600;color:var(--t2)}.tf-oi.sel .tf-oi-lb{color:#fff}
+.tf-rel-g{display:flex;flex-direction:column;gap:8px;width:100%;max-width:380px}
+.tf-ri{background:var(--white);border:2px solid var(--bdr);border-radius:var(--rs);padding:14px 18px;text-align:left;cursor:pointer;transition:all .2s;font-size:15px;font-weight:500;color:var(--t2);display:flex;align-items:center;gap:12px}
+.tf-ri:hover{border-color:var(--amber-d);color:var(--navy)}
+.tf-ri.sel{border-color:var(--navy);background:var(--navy);color:#fff}
+.tf-ri-em{font-size:20px;flex-shrink:0}
+.tf-arch-g{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:520px}
+.tf-ap{background:var(--white);border:2px solid var(--bdr);border-radius:var(--rp);padding:9px 18px;font-size:14px;font-weight:600;color:var(--t2);cursor:pointer;transition:all .2s}
+.tf-ap:hover{border-color:var(--amber-d);color:var(--amber-d)}
+.tf-ap.sel{background:var(--navy);border-color:var(--navy);color:#fff}
+.tf-bud-g{display:flex;flex-direction:column;gap:8px;width:100%;max-width:340px}
+.tf-bi{background:var(--white);border:2px solid var(--bdr);border-radius:var(--rs);padding:14px 20px;font-size:15px;font-weight:600;color:var(--t2);cursor:pointer;transition:all .2s;text-align:left;display:flex;align-items:center;justify-content:space-between}
+.tf-bi:hover{border-color:var(--amber-d);color:var(--navy)}
+.tf-bi.sel{border-color:var(--navy);background:var(--navy);color:#fff}
+.tf-nav-row{display:flex;align-items:center;gap:12px;margin-top:28px}
+.tf-continue{background:var(--navy);color:#fff;border-radius:var(--rp);padding:13px 28px;font-size:15px;font-weight:600;display:flex;align-items:center;gap:8px;transition:all .2s;border:none;cursor:pointer}
+.tf-continue:hover{background:var(--navy-2);transform:translateY(-1px);box-shadow:0 8px 20px rgba(15,23,42,.18)}
+.tf-skip{font-size:13px;color:var(--t3);cursor:pointer;background:none;border:none;padding:8px;transition:color .2s}
+.tf-skip:hover{color:var(--t2)}
+.tf-enter-hint{font-size:12px;color:var(--t3);display:flex;align-items:center;gap:5px;margin-top:10px}
+/* summary */
+.tf-summary{width:100%;max-width:600px}
+.tf-sum-head{font-family:'Fraunces',serif;font-size:34px;font-weight:700;color:var(--navy);letter-spacing:-.025em;margin-bottom:6px}
+.tf-sum-sub{font-size:15px;color:var(--t2);margin-bottom:32px}
+.sum-items{display:flex;flex-direction:column;gap:0;border:1px solid var(--bdr);border-radius:var(--r);overflow:hidden;background:var(--white)}
+.sum-row{display:flex;align-items:flex-start;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--bdr);gap:12px}
+.sum-row:last-child{border-bottom:none}
+.sum-lbl{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+.sum-val{font-size:14px;font-weight:500;color:var(--navy)}
+.sum-edit{font-size:12px;font-weight:600;color:var(--amber-d);background:none;border:none;cursor:pointer;padding:4px 8px;border-radius:6px;transition:all .2s;flex-shrink:0}
+.sum-edit:hover{background:var(--amber-l)}
+/* tf counter */
+.tf-counter{font-size:12px;font-weight:600;color:var(--t3);position:absolute;top:calc(var(--nh) + 16px);right:24px}
+.tf-back-btn{font-size:13px;font-weight:600;color:var(--t3);background:none;border:none;cursor:pointer;padding:6px 10px;border-radius:8px;transition:all .2s;display:flex;align-items:center;gap:5px}
+.tf-back-btn:hover{color:var(--navy);background:var(--wgray)}
+
+/* RECOMMENDATIONS */
+.recs-wrap{max-width:1280px;margin:0 auto;padding:calc(var(--nh) + 32px) 40px 0}
+.recs-hd{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:12px}
+.recs-title{font-family:'Fraunces',serif;font-size:32px;font-weight:700;color:var(--navy);letter-spacing:-.02em}
+.recs-title em{font-style:italic;color:var(--amber)}
+.recs-meta{font-size:12px;color:var(--t3);margin-top:6px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+/* profile card under header */
+.recs-profile{background:var(--white);border-radius:var(--rs);border:1px solid var(--bdr);padding:14px 18px;display:flex;align-items:center;gap:14px;margin-bottom:24px;flex-wrap:wrap}
+.rp-av{width:40px;height:40px;border-radius:50%;background:var(--amber-l);color:#92400E;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.rp-name{font-size:14px;font-weight:700;color:var(--navy)}
+.rp-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px}
+.rp-tag{background:var(--wgray);color:var(--t2);font-size:11px;font-weight:600;padding:3px 9px;border-radius:99px}
+/* product grid — compact 3-col */
+.recs-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:32px}
+.rc{background:var(--white);border-radius:var(--rs);border:1px solid var(--bdr);overflow:hidden;cursor:pointer;transition:all .22s cubic-bezier(.16,1,.3,1)}
+.rc:hover{transform:translateY(-4px);box-shadow:var(--sh2)}
+.rc-iw{position:relative;height:170px;overflow:hidden}
+.rc-img{width:100%;height:100%;object-fit:cover;transition:transform .4s ease}
+.rc:hover .rc-img{transform:scale(1.06)}
+.rc-sv{position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.9);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;transition:all .18s;backdrop-filter:blur(4px);z-index:2}
+.rc-sv:hover{transform:scale(1.15)}.rc-sv.saved{background:var(--amber)}
+.rc-body{padding:12px}
+.rc-nm{font-size:13px;font-weight:700;color:var(--navy);line-height:1.35;margin-bottom:5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.rc-why{font-size:11px;color:var(--t2);line-height:1.55;font-style:italic;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:10px}
+.rc-ft{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.rc-buy{background:var(--navy);color:#fff;border-radius:var(--rp);padding:6px 13px;font-size:11px;font-weight:600;border:none;cursor:pointer;transition:all .18s;white-space:nowrap}
+.rc-buy:hover{background:var(--navy-2)}
+/* saved strip */
+.saved-strip{background:var(--white);border-radius:var(--r);border:1px solid var(--bdr);padding:22px 24px;margin-bottom:40px}
+.saved-strip-h{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--navy);margin-bottom:14px}
+.sv-row{display:flex;flex-wrap:wrap;gap:10px}
+.sv-chip{background:var(--wgray);border-radius:var(--rs);padding:8px 14px;display:flex;align-items:center;gap:9px;cursor:pointer;transition:all .18s;border:1px solid transparent}
+.sv-chip:hover{border-color:var(--bdr);background:var(--white);box-shadow:var(--sh)}
+.sv-chip img{width:32px;height:32px;border-radius:6px;object-fit:cover}
+.sv-chip-nm{font-size:12px;font-weight:600;color:var(--navy)}
+.sv-chip-bud{font-size:10px;color:var(--t3)}
+
+/* MODAL */
+.modal-ov{position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;animation:ovIn .2s ease;backdrop-filter:blur(6px)}
+.modal-card{background:var(--white);border-radius:20px;width:100%;max-width:580px;max-height:90vh;overflow-y:auto;position:relative;animation:mIn .35s cubic-bezier(.16,1,.3,1) both;box-shadow:0 24px 80px rgba(15,23,42,.22)}
+.modal-close{position:absolute;top:12px;right:12px;width:32px;height:32px;border-radius:50%;background:rgba(15,23,42,.08);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--navy);transition:all .18s;z-index:10}
+.modal-close:hover{background:rgba(15,23,42,.14)}
+.modal-img{width:100%;height:280px;object-fit:cover;border-radius:20px 20px 0 0}
+.modal-body{padding:24px 28px 28px}
+.modal-nm{font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:var(--navy);letter-spacing:-.01em;margin-bottom:8px;line-height:1.2}
+.modal-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.modal-stars{display:flex;align-items:center;gap:4px;font-size:13px;color:var(--t2)}
+.modal-stars span{color:var(--amber);font-size:14px}
+.modal-why{background:var(--wgray);border-radius:var(--rs);padding:14px 16px;font-size:14px;color:var(--t2);line-height:1.72;font-style:italic;margin-bottom:18px;border-left:3px solid var(--amber)}
+.modal-why-lbl{font-size:10px;font-weight:700;color:var(--amber-d);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.modal-details{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px}
+.modal-det{background:var(--wgray);border-radius:var(--rs);padding:11px 14px}
+.modal-det-lbl{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+.modal-det-val{font-size:14px;font-weight:600;color:var(--navy)}
+.modal-actions{display:flex;gap:10px;flex-wrap:wrap}
+.modal-buy{background:var(--navy);color:#fff;border-radius:var(--rp);padding:13px 24px;font-size:14px;font-weight:600;display:flex;align-items:center;gap:7px;flex:1;justify-content:center;transition:all .2s;border:none;cursor:pointer}
+.modal-buy:hover{background:var(--navy-2);transform:translateY(-1px)}
+.modal-save-btn{background:var(--wgray);color:var(--navy);border-radius:var(--rp);padding:13px 18px;font-size:14px;font-weight:600;border:none;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:6px}
+.modal-save-btn:hover{background:var(--amber-l)}
+.modal-save-btn.saved{background:var(--amber);color:var(--navy)}
+
+/* AUTH */
+.auth-pg{min-height:100vh;display:flex;flex-direction:column;background:var(--cream);padding-top:var(--nh)}
+.auth-main{flex:1;display:flex;align-items:center;justify-content:center;padding:40px 20px}
+.auth-card{background:var(--white);border-radius:22px;border:1px solid var(--bdr);padding:40px 38px;width:100%;max-width:410px;box-shadow:var(--sh2)}
+.auth-logo-a{text-align:center;margin-bottom:28px}
+.auth-app-logo{font-family:'Fraunces',serif;font-size:22px;font-weight:800;color:var(--navy)}
+.auth-app-logo span{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--amber);margin-left:2px;vertical-align:middle;margin-bottom:2px}
+.auth-title{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:var(--navy);margin-bottom:5px;letter-spacing:-.02em}
+.auth-sub{font-size:14px;color:var(--t2);margin-bottom:26px}
+.auth-lbl{display:flex;align-items:center;justify-content:space-between;font-size:11px;font-weight:700;color:var(--t2);letter-spacing:.03em;text-transform:uppercase;margin-bottom:7px}
+.auth-inp{width:100%;background:var(--wgray);border:1.5px solid transparent;border-radius:var(--rs);padding:12px 14px;font-size:14px;color:var(--navy);transition:all .2s}
+.auth-inp:focus{background:var(--white);border-color:var(--amber);box-shadow:0 0 0 3px rgba(245,158,11,.1);outline:none}
+.auth-field{margin-bottom:16px}
+.auth-btn{width:100%;border-radius:var(--rp);padding:13px;font-size:14px;font-weight:600;border:none;cursor:pointer;margin-top:4px;transition:all .2s}
+.auth-btn.navy{background:var(--navy);color:#fff}.auth-btn.navy:hover{background:var(--navy-2)}
+.auth-btn.amber{background:var(--amber);color:var(--navy)}.auth-btn.amber:hover{background:var(--amber-d)}
+.auth-div{display:flex;align-items:center;gap:12px;margin:20px 0;color:var(--t3);font-size:12px}
+.auth-div::before,.auth-div::after{content:'';flex:1;height:1px;background:var(--bdr)}
+.auth-google{width:100%;background:var(--white);color:var(--navy);border-radius:var(--rp);padding:12px;font-size:13px;font-weight:600;border:1.5px solid var(--bdr);cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:9px}
+.auth-google:hover{border-color:var(--navy-3);box-shadow:var(--sh)}
+.auth-switch{text-align:center;margin-top:20px;font-size:13px;color:var(--t2)}
+.auth-switch a{color:var(--navy);font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+.auth-legal{text-align:center;margin-top:14px;font-size:11px;color:var(--t3);line-height:1.6}
+.auth-legal a{color:var(--t2);text-decoration:underline;cursor:pointer}
+.name-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* LEGAL */
+.legal-pg{max-width:1280px;margin:0 auto;padding:calc(var(--nh)+52px) 40px 80px;display:grid;grid-template-columns:240px 1fr;gap:60px;align-items:start}
+.legal-toc{position:sticky;top:calc(var(--nh)+28px)}
+.legal-toc-title{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--t3);margin-bottom:14px}
+.legal-toc-item{display:block;font-size:13px;color:var(--t2);padding:6px 0;border-bottom:1px solid var(--bdr);cursor:pointer;transition:color .2s}
+.legal-toc-item:hover{color:var(--navy)}
+.legal-title{font-family:'Fraunces',serif;font-size:46px;font-weight:900;color:var(--navy);letter-spacing:-.03em;margin-bottom:8px;line-height:1.05}
+.legal-updated{font-size:13px;color:var(--t3);margin-bottom:44px}
+.legal-section{margin-bottom:40px;padding-bottom:40px;border-bottom:1px solid var(--bdr)}
+.legal-section:last-child{border-bottom:none}
+.legal-section h2{font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:var(--navy);margin-bottom:14px;letter-spacing:-.01em}
+.legal-section p{font-size:15px;color:var(--t2);line-height:1.78;margin-bottom:12px}
+.legal-section ul{margin:8px 0 12px 20px;list-style:disc}
+.legal-section li{font-size:15px;color:var(--t2);line-height:1.78;margin-bottom:5px}
+.legal-section strong{color:var(--t1);font-weight:600}
+.legal-cb{background:var(--wgray);border-radius:var(--r);padding:20px 24px;margin-top:16px}
+.legal-cb p{margin-bottom:3px}
+.legal-cb a{color:var(--amber-d);font-weight:600}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const {useState,useEffect,useRef} = React;
+
+/* ─── DATA ─── */
+const PRODUCTS = [
+  {id:1,name:"Vitruvi Stone Diffuser",budget:"$119",tier:"$50–100",reason:"Her minimalist home aesthetic and love of wellness rituals makes this sculptural diffuser feel tailor-made.",img:"https://picsum.photos/seed/vitruvi/500/380",cat:"Homebody",brand:"Vitruvi",rating:4.8,reviews:3241,delivery:"2-day Prime",asin:"B0XXX001"},
+  {id:2,name:"Fellow Stagg EKG Kettle",budget:"$165",tier:"$100–200",reason:"She starts every morning with a meticulous pour-over — this precision kettle is a genuine upgrade to her ritual.",img:"https://picsum.photos/seed/fellow/500/380",cat:"Foodie",brand:"Fellow",rating:4.7,reviews:8920,delivery:"2-day Prime",asin:"B0XXX002"},
+  {id:3,name:"Lunya Washable Silk Set",budget:"$148",tier:"$100–200",reason:"For the homebody who appreciates quality over quantity, this elevated loungewear hits exactly the right note.",img:"https://picsum.photos/seed/lunya/500/380",cat:"Homebody",brand:"Lunya",rating:4.6,reviews:1832,delivery:"3–5 days",asin:"B0XXX003"},
+  {id:4,name:"Manduka PRO Yoga Mat",budget:"$88",tier:"$50–100",reason:"She mentioned being serious about her practice — this is the mat that serious yogis keep for a decade.",img:"https://picsum.photos/seed/manduka/500/380",cat:"Fitness",brand:"Manduka",rating:4.9,reviews:12483,delivery:"2-day Prime",asin:"B0XXX004"},
+  {id:5,name:"Brightland Alive Olive Oil",budget:"$37",tier:"$25–50",reason:"A foodie gift that feels special but won't go to waste — she'll use this on literally everything she cooks.",img:"https://picsum.photos/seed/brightland/500/380",cat:"Foodie",brand:"Brightland",rating:4.7,reviews:2104,delivery:"2-day Prime",asin:"B0XXX005"},
+  {id:6,name:"Aesop Resurrection Balm",budget:"$48",tier:"$25–50",reason:"A considered self-care gift that feels luxurious without being excessive. Perfect for her no-clutter aesthetic.",img:"https://picsum.photos/seed/aesop/500/380",cat:"Minimalist",brand:"Aesop",rating:4.8,reviews:965,delivery:"3–5 days",asin:"B0XXX006"},
+  {id:7,name:"Le Creuset Mug Set",budget:"$56",tier:"$50–100",reason:"A beautiful everyday upgrade — the kind of thing she'd love to own but wouldn't splurge on herself.",img:"https://picsum.photos/seed/creuset/500/380",cat:"Foodie",brand:"Le Creuset",rating:4.9,reviews:5602,delivery:"2-day Prime",asin:"B0XXX007"},
+  {id:8,name:"Parachute Linen Throw",budget:"$79",tier:"$50–100",reason:"Perfectly cozy, perfectly minimal. The kind of throw she'll drape on her couch and never want to put away.",img:"https://picsum.photos/seed/parachute/500/380",cat:"Homebody",brand:"Parachute",rating:4.7,reviews:3887,delivery:"3–5 days",asin:"B0XXX008"},
+];
+
+const EVENTS = [
+  {id:1,name:"Sarah Chen",init:"SC",bg:"#FEF3C7",tc:"#92400E",occ:"Birthday",days:7,date:"May 23",budget:"$50–100",arch:["Homebody","Foodie","Minimalist"],saved:2},
+  {id:2,name:"Marcus Johnson",init:"MJ",bg:"#EEF2FF",tc:"#3730A3",occ:"Wedding",days:21,date:"Jun 6",budget:"$100–200",arch:["Tech Person","Creative"],saved:0},
+  {id:3,name:"Dad",init:"DA",bg:"#F0FDF4",tc:"#166534",occ:"Father's Day",days:31,date:"Jun 15",budget:"$50–100",arch:["Outdoorsy","Foodie"],saved:1},
+  {id:4,name:"Priya Sharma",init:"PS",bg:"#FDF4FF",tc:"#7E22CE",occ:"Housewarming",days:45,date:"Jun 30",budget:"$25–50",arch:["Minimalist","Homebody"],saved:0},
+  {id:5,name:"Lena Torres",init:"LT",bg:"#FFF7ED",tc:"#C2410C",occ:"Baby Shower",days:14,date:"May 30",budget:"$50–100",arch:["New Parent"],saved:1},
+  {id:6,name:"Jake Kim",init:"JK",bg:"#F0F9FF",tc:"#0C4A6E",occ:"Graduation",days:60,date:"Jul 15",budget:"$25–50",arch:["Tech Person","Gamer"],saved:0},
+];
+
+const OCCASIONS = [{id:"birthday",em:"🎂",lb:"Birthday"},{id:"anniversary",em:"💍",lb:"Anniversary"},{id:"wedding",em:"🥂",lb:"Wedding"},{id:"baby",em:"🍼",lb:"Baby Shower"},{id:"graduation",em:"🎓",lb:"Graduation"},{id:"housewarming",em:"🏡",lb:"Housewarming"},{id:"holiday",em:"✨",lb:"Holiday"},{id:"other",em:"🎁",lb:"Other"}];
+const RELATIONSHIPS = [{em:"❤️",lb:"Partner"},{em:"👨‍👩‍👧",lb:"Parent"},{em:"👯",lb:"Close friend"},{em:"🤝",lb:"Coworker"},{em:"👋",lb:"Acquaintance"},{em:"👨‍👩‍👦",lb:"Sibling"}];
+const ARCHETYPES = ["Homebody","Foodie","Fitness","Tech Person","Creative","Traveler","Outdoorsy","Minimalist","Luxury Seeker","Reader","Gamer","Pet Lover","New Parent","Music Lover"];
+const BUDGETS = [["Under $25","Perfect for small gestures"],["$25–50","Most popular range"],["$50–100","Great sweet spot"],["$100–200","Premium feels"],["$200+","Go all out"]];
+const CAL_EVENTS = {23:{name:"Sarah's Birthday",urg:true},30:{name:"Lena's Baby Shower",urg:false}};
+
+/* ─── SCROLL HOOK ─── */
+const useScrollAnim = (key) => {
+  useEffect(()=>{
+    const t = setTimeout(()=>{
+      const els = document.querySelectorAll('.sa');
+      const io = new IntersectionObserver(entries=>{
+        entries.forEach(e=>{if(e.isIntersecting) e.target.classList.add('vis');});
+      },{threshold:.1,rootMargin:'0px 0px -40px 0px'});
+      els.forEach(el=>io.observe(el));
+      return ()=>io.disconnect();
+    },80);
+    return ()=>clearTimeout(t);
+  },[key]);
+};
+
+/* ─── MINI CALENDAR ─── */
+const MiniCalendar = () => {
+  const [hov,setHov]=useState(null);
+  const dow=['Mo','Tu','We','Th','Fr','Sa','Su'], startDay=4, total=31;
+  const cells=[];
+  for(let i=0;i<startDay;i++)cells.push(null);
+  for(let d=1;d<=total;d++)cells.push(d);
+  while(cells.length%7!==0)cells.push(null);
+  return (
+    <div className="mini-cal">
+      <div className="cal-top"><button className="cal-nb">‹</button><span className="cal-month">May 2026</span><button className="cal-nb">›</button></div>
+      <div className="cal-dow">{dow.map(d=><span key={d}>{d}</span>)}</div>
+      <div className="cal-grid">
+        {cells.map((d,i)=>{
+          const isT=d===16,hasE=d&&CAL_EVENTS[d],isU=hasE&&CAL_EVENTS[d].urg;
+          return <div key={i} className={`cc${isT?' today':''}${hasE&&!isU?' ev':''}${isU?' ev-u':''}`} onMouseEnter={()=>hasE&&setHov(d)} onMouseLeave={()=>setHov(null)}>{d||''}{(hasE||isT)&&<div className="dot"/>}</div>;
+        })}
+      </div>
+      <div className="cal-leg">
+        <div className="cal-leg-i"><div className="cal-leg-d" style={{background:'var(--navy)'}}/>Today — May 16</div>
+        <div className="cal-leg-i"><div className="cal-leg-d" style={{background:'#EF4444'}}/>Sarah's Birthday — May 23</div>
+        <div className="cal-leg-i"><div className="cal-leg-d" style={{background:'var(--amber)'}}/>Lena's Baby Shower — May 30</div>
+      </div>
+      {hov&&<div style={{marginTop:9,padding:'7px 10px',background:'var(--amber-l)',borderRadius:7,fontSize:11,color:'#92400E',fontWeight:600}}>🎁 {CAL_EVENTS[hov].name}</div>}
+    </div>
+  );
+};
+
+/* ─── NAV ─── */
+const Nav = ({screen,go,signedIn}) => {
+  const appTabs = signedIn?['Dashboard','Add Event','Recommendations','Email']:['Landing'];
+  return (
+    <nav className="nav">
+      <div className="nav-inner">
+        <div className="nav-logo" onClick={()=>go('Landing')}>emptyhanded<span/></div>
+        {appTabs.map(s=><button key={s} className={`nav-tab${screen===s?' act':''}`} onClick={()=>go(s)}>{s}</button>)}
+        {!signedIn&&['Landing','Dashboard','Add Event','Recommendations','Email'].slice(1).map(s=><button key={s} className={`nav-tab${screen===s?' act':''}`} onClick={()=>go(s)}>{s}</button>)}
+        <div className="nav-sp"/>
+        {signedIn ? (
+          <div className="nav-profile">
+            <button className="nav-notif">🔔<div className="notif-dot"/></button>
+            <div className="nav-av">JA</div>
+          </div>
+        ) : (
+          <div className="nav-auth">
+            <button className="nav-login" onClick={()=>go('Login')}>Log in</button>
+            <button className="nav-signup" onClick={()=>go('Signup')}>Sign up free</button>
+          </div>
+        )}
+      </div>
+    </nav>
+  );
+};
+
+/* ─── FOOTER ─── */
+const Footer = ({go}) => (
+  <footer>
+    <div className="foot-in">
+      <div>
+        <div className="foot-logo">emptyhanded<span/></div>
+        <p className="foot-tag">Never show up empty handed to another occasion again.</p>
+        <button className="btn-amber" style={{fontSize:13,padding:'9px 18px'}} onClick={()=>go('Signup')}>Get started free →</button>
+      </div>
+      <div>
+        <div className="foot-ct">Product</div>
+        {['Dashboard','Add Event','Recommendations'].map(l=><span key={l} className="foot-lk" onClick={()=>go(l)}>{l}</span>)}
+        <span className="foot-lk" onClick={()=>go('Landing')}>How it works</span>
+      </div>
+      <div>
+        <div className="foot-ct">Company</div>
+        {['About','Blog','Careers','Contact'].map(l=><span key={l} className="foot-lk">{l}</span>)}
+      </div>
+      <div>
+        <div className="foot-ct">Legal</div>
+        <span className="foot-lk" onClick={()=>go('Terms')}>Terms & Conditions</span>
+        <span className="foot-lk" onClick={()=>go('Privacy')}>Privacy Policy</span>
+        <span className="foot-lk">Cookie Policy</span>
+        <span className="foot-lk">Affiliate Disclosure</span>
+      </div>
+    </div>
+    <div className="foot-bot">
+      <div className="foot-copy">© 2026 EmptyHanded, Inc. All rights reserved.</div>
+      <div className="foot-leg">
+        <a onClick={()=>go('Terms')}>Terms</a>
+        <a onClick={()=>go('Privacy')}>Privacy</a>
+        <a>Cookies</a>
+      </div>
+    </div>
+  </footer>
+);
+
+/* ─── LANDING ─── */
+const Landing = ({go}) => {
+  useScrollAnim('landing');
+  return (
+    <div>
+      <div style={{background:'var(--cream)',paddingTop:'var(--nh)'}}>
+        <div className="hero">
+          <div>
+            <div className="a1"><span className="badge-am" style={{marginBottom:14,display:'inline-block'}}>✨ AI-powered gift recommendations</span></div>
+            <h1 className="a2">Never Show Up<br/><em>Empty Handed.</em></h1>
+            <p className="hero-sub a3">Tell us about the people you love. We'll find the perfect gift for every occasion — and remind you before it's too late.</p>
+            <div className="hero-form a4">
+              <input className="hero-inp" type="email" placeholder="your@email.com"/>
+              <button className="btn-amber" onClick={()=>go('Signup')}>Get early access →</button>
+            </div>
+            <p className="a4" style={{fontSize:11,color:'var(--t3)'}}>Free forever · No credit card · 2-minute setup</p>
+          </div>
+          <div className="hero-r a2">
+            <div className="hc-cal"><MiniCalendar/></div>
+            <div className="hc-picks">
+              <div style={{fontSize:10,fontWeight:700,color:'var(--t3)',letterSpacing:'.06em',marginBottom:9}}>🎁 PICKS FOR SARAH</div>
+              {[{n:"Vitruvi Diffuser",p:"$119",img:"https://picsum.photos/seed/vitruvi/60/60"},{n:"Manduka Yoga Mat",p:"$88",img:"https://picsum.photos/seed/manduka/60/60"}].map((p,i)=>(
+                <div key={i} style={{display:'flex',gap:9,alignItems:'center',padding:'7px 0',borderBottom:i===0?'1px solid var(--bdr)':'none'}}>
+                  <img src={p.img} style={{width:34,height:34,borderRadius:7,objectFit:'cover',flexShrink:0}} alt=""/>
+                  <div><div style={{fontSize:11,fontWeight:600,color:'var(--navy)',lineHeight:1.3}}>{p.n}</div><div style={{fontSize:10,color:'var(--t3)',marginTop:1}}>{p.p}</div></div>
+                  {i===0&&<span style={{marginLeft:'auto',fontSize:14}}>❤️</span>}
+                </div>
+              ))}
+              <button className="btn-navy" style={{width:'100%',marginTop:11,padding:'8px',fontSize:11,justifyContent:'center'}} onClick={()=>go('Recommendations')}>View all 8 picks →</button>
+            </div>
+            <div className="hc-profile">
+              <div style={{display:'flex',alignItems:'center',gap:9,marginBottom:9}}>
+                <div style={{width:34,height:34,borderRadius:'50%',background:'#FEF3C7',color:'#92400E',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700}}>SC</div>
+                <div><div style={{fontSize:13,fontWeight:700,color:'var(--navy)'}}>Sarah Chen · Birthday</div><div style={{fontSize:10,color:'var(--t3)'}}>Homebody · Foodie · Minimalist</div></div>
+              </div>
+              <div style={{background:'var(--wgray)',borderRadius:7,padding:'8px 10px',fontSize:11,color:'var(--t2)',fontStyle:'italic',lineHeight:1.55}}>"Loves cozy spaces, hates clutter. Budget $50–100."</div>
+            </div>
+            <div className="hc-badge">🔔 7 days left</div>
+          </div>
+        </div>
+      </div>
+
+      <section className="lsec" style={{background:'var(--white)'}}>
+        <div className="lsec-in">
+          <div className="eyebrow sa">How it works</div>
+          <h2 className="sec-h sa d1">Thoughtful gifts in<br/>three steps.</h2>
+          <div className="steps-g" style={{marginTop:44}}>
+            {[{n:"01",t:"Add an occasion",d:"Birthday, wedding, graduation — drop it in your calendar with the recipient's name. Never forget another important day."},{n:"02",t:"Build their profile",d:"Tell us who they are. Personality, interests, what they love, what they hate. Two minutes, total game-changer."},{n:"03",t:"Get perfect picks",d:"7 days before the big day, you get 6 AI-curated gifts with a personal note explaining why each one fits."}].map((s,i)=>(
+              <div key={i} className={`sa d${i+2}`}><div className="sn">{s.n}</div><div className="st">{s.t}</div><p className="sd">{s.d}</p></div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <div className="feat-strip">
+        <div className="feat-in">
+          {[{icon:"🧠",t:"Genuinely intelligent",d:"Understands personality, not just price ranges. No more generic candles."},{icon:"📅",t:"Never miss a date",d:"Connect your calendar. Get a 7-day heads-up with ready-to-act picks."},{icon:"🔗",t:"One-tap purchasing",d:"Click through to Amazon or ShopMy with your affiliate link pre-applied."}].map((f,i)=>(
+            <div key={i} className={`sa d${i+1}`} style={{textAlign:'center'}}><div className="fi-icon">{f.icon}</div><div className="fi-t">{f.t}</div><p className="fi-d">{f.d}</p></div>
+          ))}
+        </div>
+      </div>
+
+      <section className="lsec" style={{background:'var(--cream)'}}>
+        <div className="lsec-in" style={{textAlign:'center'}}>
+          <div className="eyebrow sa">What people say</div>
+          <h2 className="sec-h sa d1" style={{maxWidth:520,margin:'0 auto 48px'}}>Gifting, finally done right.</h2>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:18,maxWidth:880,margin:'0 auto'}}>
+            {[{q:"I used to panic-buy the same candle every year. EmptyHanded actually knows my sister better than I do.",n:"Jamie L.",r:"Beta tester"},{q:"Finally showed up to my best friend's birthday with something she genuinely loved. Total game changer.",n:"Marcus T.",r:"Beta tester"},{q:"The 'why this fits them' note made me look like I'd been planning for months. I hadn't.",n:"Priya K.",r:"Beta tester"}].map((t,i)=>(
+              <div key={i} className={`sa d${i+2}`} style={{background:'var(--white)',borderRadius:'var(--r)',border:'1px solid var(--bdr)',padding:'24px 22px',textAlign:'left'}}>
+                <p style={{fontSize:14,color:'var(--t2)',lineHeight:1.72,fontStyle:'italic',marginBottom:16}}>"{t.q}"</p>
+                <div style={{display:'flex',alignItems:'center',gap:9}}>
+                  <div style={{width:32,height:32,borderRadius:'50%',background:'var(--amber-l)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700,color:'#92400E'}}>{t.n[0]}</div>
+                  <div><div style={{fontSize:13,fontWeight:600,color:'var(--navy)'}}>{t.n}</div><div style={{fontSize:11,color:'var(--t3)'}}>{t.r}</div></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="lsec" style={{background:'var(--white)'}}>
+        <div className="lsec-in" style={{textAlign:'center'}}>
+          <div className="eyebrow sa">Pricing</div>
+          <h2 className="sec-h sa d1" style={{maxWidth:400,margin:'0 auto 8px'}}>Simple, honest pricing.</h2>
+          <p style={{fontSize:16,color:'var(--t2)',marginBottom:48,lineHeight:1.65}} className="sa d2">Start free. Upgrade when you're ready.</p>
+          <div className="price-g">
+            <div className="pc sa d2"><div className="pc-plan">Free</div><div className="pc-amt">$0</div><div className="pc-per">forever</div>{["2 recipient profiles","Basic AI recommendations","Amazon affiliate links","Manual reminders"].map((f,i)=><div key={i} className="pc-f"><div className="ck">✓</div>{f}</div>)}<button className="btn-outline" style={{width:'100%',marginTop:24,justifyContent:'center'}} onClick={()=>go('Signup')}>Get started free</button></div>
+            <div className="pc feat sa d3"><div style={{background:'var(--amber)',color:'var(--navy)',fontSize:10,fontWeight:700,padding:'3px 10px',borderRadius:99,display:'inline-block',marginBottom:12}}>Most popular</div><div className="pc-plan">Pro</div><div className="pc-amt">$4.99</div><div className="pc-per">per month, cancel anytime</div>{["Unlimited recipients","Advanced AI matching","7-day email reminders","Gift history & saved picks","ShopMy premium picks"].map((f,i)=><div key={i} className="pc-f"><div className="ck">✓</div>{f}</div>)}<button className="btn-amber" style={{width:'100%',marginTop:24,justifyContent:'center'}} onClick={()=>go('Signup')}>Start free trial →</button></div>
+          </div>
+        </div>
+      </section>
+
+      <section style={{background:'var(--navy)',padding:'72px 40px',textAlign:'center'}}>
+        <div className="sa"><h2 style={{fontFamily:"'Fraunces',serif",fontSize:46,fontWeight:900,color:'#fff',letterSpacing:'-.025em',marginBottom:14,lineHeight:1.05}}>Stop showing up<br/><em style={{fontStyle:'italic',color:'var(--amber)'}}>empty handed.</em></h2></div>
+        <p className="sa d1" style={{fontSize:16,color:'rgba(255,255,255,.6)',marginBottom:32,lineHeight:1.65}}>Join thousands of thoughtful gift-givers who never panic-buy again.</p>
+        <div className="sa d2" style={{display:'flex',gap:10,justifyContent:'center',flexWrap:'wrap'}}>
+          <input style={{background:'rgba(255,255,255,.1)',border:'1.5px solid rgba(255,255,255,.2)',borderRadius:'var(--rp)',padding:'12px 18px',fontSize:14,color:'#fff',width:236}} placeholder="your@email.com"/>
+          <button className="btn-amber" onClick={()=>go('Signup')}>Get early access →</button>
+        </div>
+      </section>
+      <Footer go={go}/>
+    </div>
+  );
+};
+
+/* ─── DASHBOARD ─── */
+const Dashboard = ({empty,go}) => {
+  const [filter,setFilter]=useState('All');
+  const filtered = filter==='This Week' ? EVENTS.filter(e=>e.days<=7) : filter==='This Month' ? EVENTS.filter(e=>e.days<=30) : EVENTS;
+  const urgentEvent = EVENTS.find(e=>e.days<=7);
+  const occIcon = {Birthday:'🎂',Wedding:'🥂',"Father's Day":'👨',"Baby Shower":'🍼',Housewarming:'🏡',Graduation:'🎓'};
+  return (
+    <div>
+      <div className="dash sc-in">
+        <div className="dash-hd a1">
+          <div>
+            <div className="dash-greet-sub">Saturday, May 16 · Good morning 👋</div>
+            <div className="dash-greet">Your <em>occasions</em>.</div>
+          </div>
+          <div style={{display:'flex',alignItems:'center',gap:10}}>
+            <button className="btn-outline" style={{padding:'9px 16px',fontSize:13}} onClick={()=>go('Add Event')}>Browse gifts</button>
+          </div>
+        </div>
+
+        {!empty && (<>
+          <div className="stats-row a2">
+            {[{n:EVENTS.length,l:"Upcoming",sub:"occasions"},
+              {n:EVENTS.filter(e=>e.days<=30).length,l:"This month",sub:"occasions",urg:false},
+              {n:EVENTS.reduce((a,e)=>a+e.saved,0),l:"Gifts saved",sub:"across all"},
+              {n:"7 days",l:"Next occasion",sub:"Sarah's Birthday",urg:true}
+            ].map((s,i)=>(
+              <div key={i} className={`stat-card${s.urg?' urg':''}`}>
+                <div className="stat-num">{s.n}</div>
+                <div className="stat-lbl">{s.l}</div>
+                <div style={{fontSize:11,color:'var(--t3)',marginTop:1}}>{s.sub}</div>
+              </div>
+            ))}
+          </div>
+
+          {urgentEvent && (
+            <div className="urg-banner a3">
+              <div style={{fontSize:24,flexShrink:0}}>⏰</div>
+              <div style={{flex:1}}>
+                <div className="urg-txt-main">{urgentEvent.name}'s {urgentEvent.occ} is in {urgentEvent.days} days</div>
+                <div className="urg-txt-sub">{urgentEvent.date} · Budget {urgentEvent.budget} · {urgentEvent.saved} gift{urgentEvent.saved!==1?'s':''} saved</div>
+              </div>
+              <button className="btn-amber" style={{fontSize:13,padding:'9px 18px',flexShrink:0}} onClick={()=>go('Recommendations')}>View picks →</button>
+            </div>
+          )}
+        </>)}
+
+        {empty ? (
+          <div style={{textAlign:'center',padding:'80px 40px'}}>
+            <div style={{fontSize:56,marginBottom:20,display:'block',animation:'floatA 4s ease-in-out infinite'}}>🎁</div>
+            <div style={{fontFamily:"'Fraunces',serif",fontSize:24,fontWeight:700,color:'var(--navy)',marginBottom:10}}>No upcoming occasions yet.</div>
+            <p style={{fontSize:15,color:'var(--t2)',maxWidth:340,margin:'0 auto 24px',lineHeight:1.65}}>Someone's birthday is coming up. Trust us. Add your first occasion before you're caught empty handed.</p>
+            <button className="btn-navy" onClick={()=>go('Add Event')}>Add your first occasion →</button>
+          </div>
+        ) : (<>
+          <div className="sec-row a4">
+            <div className="sec-lbl">All occasions <span className="cnt-pill">{EVENTS.length}</span></div>
+            <div className="filter-tabs">
+              {['All','This Week','This Month'].map(f=><button key={f} className={`ftab${filter===f?' act':''}`} onClick={()=>setFilter(f)}>{f}</button>)}
+            </div>
+          </div>
+          <div className="evt-list">
+            {filtered.map((e,i)=>(
+              <div key={e.id} className={`el-item a${Math.min(i+4,6)}`} onClick={()=>go('Recommendations')}>
+                <div className="el-av" style={{background:e.bg,color:e.tc}}>{e.init}</div>
+                <div>
+                  <div className="el-name">{e.name}</div>
+                  <div className="el-meta">
+                    <span>{occIcon[e.occ]||'🎁'} {e.occ}</span>
+                    <div className="el-meta-dot"/>
+                    <span>📅 {e.date}</span>
+                    <div className="el-meta-dot"/>
+                    <span>💰 {e.budget}</span>
+                  </div>
+                  {e.arch.length>0&&<div style={{display:'flex',gap:4,marginTop:4,flexWrap:'wrap'}}>
+                    {e.arch.slice(0,3).map(a=><span key={a} style={{background:'var(--wgray)',color:'var(--t2)',fontSize:10,fontWeight:600,padding:'2px 7px',borderRadius:99}}>{a}</span>)}
+                  </div>}
+                  {e.saved>0&&<div className="el-saved">❤️ {e.saved} gift{e.saved!==1?'s':''} saved</div>}
+                </div>
+                <div className="el-right">
+                  <span className={e.days<=7?'badge-urg':e.days<=14?'badge-am':'badge-nv'}>{e.days}d</span>
+                  <div className="el-cta">See picks →</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>)}
+      </div>
+      <Footer go={go}/>
+      <button className="fab" onClick={()=>go('Add Event')} title="Add occasion">+</button>
+    </div>
+  );
+};
+
+/* ─── TYPEFORM ADD EVENT ─── */
+const AddEvent = ({go}) => {
+  const STEPS = [
+    {key:'occ',type:'occ',q:"What's the occasion?",sub:"We'll tailor everything around this."},
+    {key:'name',type:'text',q:"Who's it for?",sub:"Just their first name is fine.",ph:"Sarah, Mom, Jake...",hint:"Press Enter to continue"},
+    {key:'date',type:'date',q:"When is it?",sub:"We'll set your reminder 7 days before."},
+    {key:'rel',type:'rel',q:"How do you know them?",sub:"Helps us understand the relationship dynamic."},
+    {key:'arch',type:'multi',q:"How would you describe them?",sub:"Pick all that apply — more is better."},
+    {key:'interests',type:'textarea',q:"What are they into?",sub:"The more detail, the better the picks.",ph:"Coffee, yoga, plants, true crime podcasts...",hint:"Optional — skip if you're not sure"},
+    {key:'budget',type:'budget',q:"What's your budget?",sub:"Including tax and shipping is a good idea."},
+    {key:'past',type:'textarea',q:"Any past gifts to avoid?",sub:"We'll make sure not to repeat them.",ph:"Got them a candle last year, gave a cookbook...",hint:"Optional — skip if first time gifting"},
+  ];
+  const [step,setStep]=useState(0);
+  const [answers,setAnswers]=useState({occ:'birthday',name:'',date:'',rel:'',arch:[],interests:'',budget:'',past:''});
+  const [sk,setSk]=useState(0);
+  const [showSummary,setShowSummary]=useState(false);
+  const [editStep,setEditStep]=useState(null);
+
+  const total = STEPS.length;
+  const pct = Math.round((step/total)*100);
+  const cur = STEPS[step];
+
+  const ans = (k,v) => setAnswers(a=>({...a,[k]:v}));
+  const toggleArch = a => setAnswers(prev=>({...prev,arch:prev.arch.includes(a)?prev.arch.filter(x=>x!==a):[...prev.arch,a]}));
+
+  const next = () => {
+    if(step<total-1){setStep(s=>s+1);setSk(k=>k+1);}
+    else{setShowSummary(true);}
+  };
+  const back = () => {
+    if(showSummary){setShowSummary(false);}
+    else if(step>0){setStep(s=>s-1);setSk(k=>k+1);}
+    else{go('Dashboard');}
+  };
+  const jumpTo = i => {setEditStep(i);setStep(i);setSk(k=>k+1);setShowSummary(false);};
+  const doneEditing = () => {setEditStep(null);setShowSummary(true);setSk(k=>k+1);};
+
+  const autoNext = (k,v) => {ans(k,v);setTimeout(()=>{if(step<total-1){setStep(s=>s+1);setSk(k=>k+1);}else setShowSummary(true);},220);};
+
+  const occLabel = OCCASIONS.find(o=>o.id===answers.occ);
+  const sumRows = [
+    {lbl:'Occasion',val:occLabel?`${occLabel.em} ${occLabel.lb}`:'—',i:0},
+    {lbl:'Recipient',val:answers.name||'—',i:1},
+    {lbl:'Date',val:answers.date||'—',i:2},
+    {lbl:'Relationship',val:answers.rel||'—',i:3},
+    {lbl:'Personality',val:answers.arch.length?answers.arch.join(', '):'—',i:4},
+    {lbl:'Interests',val:answers.interests||'None provided',i:5},
+    {lbl:'Budget',val:answers.budget||'—',i:6},
+    {lbl:'Past gifts',val:answers.past||'None provided',i:7},
+  ];
+
+  if(showSummary) return (
+    <div className="tf-wrap" style={{justifyContent:'flex-start'}}>
+      <div className="tf-prog-bar"><div className="tf-prog-fill" style={{width:'100%'}}/></div>
+      <div style={{maxWidth:640,margin:'0 auto',padding:'48px 24px 60px',width:'100%'}}>
+        <button className="tf-back-btn a1" onClick={back}>← Back</button>
+        <div style={{marginTop:8}}>
+          <div className="tf-sum-head a1">🎉 {answers.name?"You're all set for "+answers.name+"!":'Ready to find the perfect gift!'}</div>
+          <p className="tf-sum-sub a2">Review your details below. Click edit on anything you'd like to change.</p>
+          <div className="sum-items a3">
+            {sumRows.map((r,i)=>(
+              <div key={i} className="sum-row">
+                <div style={{flex:1}}><div className="sum-lbl">{r.lbl}</div><div className="sum-val" style={{maxWidth:400,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:r.lbl==='Personality'||r.lbl==='Interests'||r.lbl==='Past gifts'?'normal':'nowrap'}}>{r.val}</div></div>
+                <button className="sum-edit" onClick={()=>jumpTo(r.i)}>Edit</button>
+              </div>
+            ))}
+          </div>
+          <div style={{display:'flex',gap:10,marginTop:24}}>
+            <button className="btn-amber" style={{flex:1,justifyContent:'center'}} onClick={()=>go('Recommendations')}>✨ Get my recommendations</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="tf-wrap" style={{position:'relative'}}>
+      <div className="tf-prog-bar"><div className="tf-prog-fill" style={{width:`${pct}%`}}/></div>
+      <div style={{position:'absolute',top:'calc(var(--nh) + 14px)',left:24}}><button className="tf-back-btn" onClick={back}>← Back</button></div>
+      <div style={{position:'absolute',top:'calc(var(--nh) + 18px)',right:24,fontSize:12,fontWeight:600,color:'var(--t3)'}}>{step+1} / {total}</div>
+      <div className="tf-step-area">
+        <div key={sk} className="tf-content">
+          <div className="tf-q">{cur.q}</div>
+          {cur.sub&&<p className="tf-sub">{cur.sub}</p>}
+
+          {cur.type==='occ'&&<div className="tf-occ-g">{OCCASIONS.map(o=><div key={o.id} className={`tf-oi${answers.occ===o.id?' sel':''}`} onClick={()=>autoNext('occ',o.id)}><div className="tf-oi-em">{o.em}</div><div className="tf-oi-lb">{o.lb}</div></div>)}</div>}
+
+          {cur.type==='text'&&<><input className="tf-inp" placeholder={cur.ph} value={answers[cur.key]} onChange={e=>ans(cur.key,e.target.value)} onKeyDown={e=>e.key==='Enter'&&answers[cur.key].trim()&&next()} autoFocus/>{cur.hint&&<p className="tf-enter-hint">⏎ {cur.hint}</p>}<div className="tf-nav-row"><button className="tf-continue" onClick={next}>Continue →</button>{editStep!==null&&<button className="tf-skip" onClick={doneEditing}>Done editing</button>}</div></>}
+
+          {cur.type==='date'&&<><input className="tf-inp" type="date" value={answers.date} onChange={e=>ans('date',e.target.value)} style={{maxWidth:320}} autoFocus/><div className="tf-nav-row"><button className="tf-continue" onClick={next}>Continue →</button></div></>}
+
+          {cur.type==='rel'&&<div className="tf-rel-g">{RELATIONSHIPS.map(r=><div key={r.lb} className={`tf-ri${answers.rel===r.lb?' sel':''}`} onClick={()=>autoNext('rel',r.lb)}><span className="tf-ri-em">{r.em}</span>{r.lb}</div>)}</div>}
+
+          {cur.type==='multi'&&<><div className="tf-arch-g">{ARCHETYPES.map(a=><div key={a} className={`tf-ap${answers.arch.includes(a)?' sel':''}`} onClick={()=>toggleArch(a)}>{a}</div>)}</div><div className="tf-nav-row"><button className="tf-continue" onClick={next} disabled={answers.arch.length===0} style={{opacity:answers.arch.length?1:.45}}>Continue{answers.arch.length>0?` (${answers.arch.length} selected)`:''} →</button></div></>}
+
+          {cur.type==='textarea'&&<><textarea className="tf-textarea" placeholder={cur.ph} value={answers[cur.key]} onChange={e=>ans(cur.key,e.target.value)} autoFocus/><div className="tf-nav-row"><button className="tf-continue" onClick={next}>Continue →</button><button className="tf-skip" onClick={next}>Skip →</button></div>{cur.hint&&<p className="tf-hint">{cur.hint}</p>}</>}
+
+          {cur.type==='budget'&&<div className="tf-bud-g">{BUDGETS.map(([b,sub])=><div key={b} className={`tf-bi${answers.budget===b?' sel':''}`} onClick={()=>autoNext('budget',b)}><span>{b}</span><span style={{fontSize:11,opacity:.6}}>{sub}</span></div>)}</div>}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ─── PRODUCT MODAL ─── */
+const ProductModal = ({product,onClose,saved,onSave}) => {
+  if(!product) return null;
+  const isSaved = saved.includes(product.id);
+  return (
+    <div className="modal-ov" onClick={onClose}>
+      <div className="modal-card" onClick={e=>e.stopPropagation()}>
+        <button className="modal-close" onClick={onClose}>✕</button>
+        <img src={product.img} className="modal-img" alt={product.name}/>
+        <div className="modal-body">
+          <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:10,marginBottom:8}}>
+            <div className="modal-nm">{product.name}</div>
+            <span className="badge-am" style={{flexShrink:0,marginTop:4}}>{product.budget}</span>
+          </div>
+          <div className="modal-meta">
+            <span className="badge-nv" style={{fontSize:10}}>{product.cat}</span>
+            <span style={{fontSize:12,color:'var(--t2)',display:'flex',alignItems:'center',gap:4}}>
+              <span style={{color:'var(--amber)'}}>★★★★★</span> {product.rating} <span style={{color:'var(--t3)'}}>({product.reviews.toLocaleString()} reviews)</span>
+            </span>
+            {product.delivery.includes('Prime')&&<span style={{background:'#232F3E',color:'#00A8E1',fontSize:10,fontWeight:700,padding:'2px 7px',borderRadius:4}}>prime</span>}
+          </div>
+          <div className="modal-why">
+            <div className="modal-why-lbl">Why this fits Sarah</div>
+            {product.reason}
+          </div>
+          <div className="modal-details">
+            <div className="modal-det"><div className="modal-det-lbl">Brand</div><div className="modal-det-val">{product.brand}</div></div>
+            <div className="modal-det"><div className="modal-det-lbl">Category</div><div className="modal-det-val">{product.cat}</div></div>
+            <div className="modal-det"><div className="modal-det-lbl">Price</div><div className="modal-det-val">{product.budget}</div></div>
+            <div className="modal-det"><div className="modal-det-lbl">Delivery</div><div className="modal-det-val">{product.delivery}</div></div>
+          </div>
+          <div style={{background:'var(--wgray)',borderRadius:'var(--rs)',padding:'11px 14px',marginBottom:18,display:'flex',alignItems:'center',gap:9}}>
+            <span style={{fontSize:16}}>📦</span>
+            <span style={{fontSize:13,color:'var(--t2)'}}>Estimated delivery: <strong style={{color:'var(--navy)'}}>May 20–22</strong> if ordered today</span>
+          </div>
+          <div className="modal-actions">
+            <button className="modal-buy" onClick={()=>window.open(`https://amazon.com/dp/${product.asin}?tag=emptyhanded-20`)}>View on Amazon →</button>
+            <button className={`modal-save-btn${isSaved?' saved':''}`} onClick={()=>onSave(product.id)}>{isSaved?'❤️ Saved':'🤍 Save'}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ─── RECOMMENDATIONS ─── */
+const Recommendations = ({go}) => {
+  const [saved,setSaved]=useState([1,4]);
+  const [modal,setModal]=useState(null);
+  const toggle = id => setSaved(s=>s.includes(id)?s.filter(x=>x!==id):[...s,id]);
+  return (
+    <div>
+      <div className="recs-wrap sc-in">
+        <div className="recs-hd a1">
+          <div>
+            <span className="badge-am" style={{marginBottom:10,display:'inline-block'}}>🎂 Birthday · 7 days away</span>
+            <div className="recs-title">Gifts for <em>Sarah.</em></div>
+            <div className="recs-meta">
+              <span>📅 May 23, 2026</span><span>💰 Budget $50–100</span><span>✨ Homebody · Foodie · Minimalist</span>
+            </div>
+          </div>
+          <div style={{display:'flex',gap:9}}>
+            <button className="btn-outline" style={{padding:'9px 16px',fontSize:13}}>↻ Regenerate</button>
+            <button className="btn-amber" style={{padding:'9px 16px',fontSize:13}} onClick={()=>go('Dashboard')}>← Back</button>
+          </div>
+        </div>
+
+        <div className="recs-profile a2">
+          <div className="rp-av">SC</div>
+          <div style={{flex:1}}>
+            <div className="rp-name">Sarah Chen · Close friend</div>
+            <div className="rp-tags">
+              {['Homebody','Foodie','Minimalist'].map(t=><span key={t} className="rp-tag">{t}</span>)}
+              <span className="rp-tag" style={{fontStyle:'italic',color:'var(--t3)'}}>Loves cozy spaces, hates clutter</span>
+            </div>
+          </div>
+          <div style={{fontSize:12,color:'var(--t3)',textAlign:'right',flexShrink:0}}>
+            <div style={{fontWeight:600,color:'var(--navy)'}}>8 picks</div>
+            <div>{saved.length} saved</div>
+          </div>
+        </div>
+
+        <div className="sec-lbl a2" style={{marginBottom:14}}>All recommendations <span className="cnt-pill">{PRODUCTS.length}</span></div>
+
+        <div className="recs-grid">
+          {PRODUCTS.map((p,i)=>(
+            <div key={p.id} className={`rc a${Math.min(i+2,6)}`} onClick={()=>setModal(p)}>
+              <div className="rc-iw">
+                <img src={p.img} className="rc-img" alt={p.name}/>
+                <button className={`rc-sv${saved.includes(p.id)?' saved':''}`} onClick={e=>{e.stopPropagation();toggle(p.id);}}>{saved.includes(p.id)?'❤️':'🤍'}</button>
+              </div>
+              <div className="rc-body">
+                <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:5,marginBottom:5}}>
+                  <div className="rc-nm">{p.name}</div>
+                  <span className="badge-am" style={{fontSize:10,flexShrink:0,marginTop:1}}>{p.budget}</span>
+                </div>
+                <p className="rc-why">"{p.reason}"</p>
+                <div className="rc-ft">
+                  <button className="rc-buy" onClick={e=>e.stopPropagation()}>Amazon →</button>
+                  <span style={{fontSize:10,color:'var(--t3)'}}>{p.cat}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {saved.length>0&&(
+          <div className="saved-strip a5">
+            <div className="saved-strip-h">Saved picks ({saved.length})</div>
+            <div className="sv-row">
+              {PRODUCTS.filter(p=>saved.includes(p.id)).map(p=>(
+                <div key={p.id} className="sv-chip" onClick={()=>setModal(p)}>
+                  <img src={p.img} alt={p.name}/>
+                  <div><div className="sv-chip-nm">{p.name}</div><div className="sv-chip-bud">{p.budget} · {p.cat}</div></div>
+                  <button style={{background:'none',border:'none',cursor:'pointer',fontSize:12,color:'var(--t3)',padding:'2px 4px'}} onClick={e=>{e.stopPropagation();toggle(p.id);}}>✕</button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      <Footer go={go}/>
+      {modal&&<ProductModal product={modal} onClose={()=>setModal(null)} saved={saved} onSave={toggle}/>}
+    </div>
+  );
+};
+
+/* ─── EMAIL ─── */
+const Email = ({go}) => (
+  <div style={{paddingTop:'var(--nh)'}}>
+    <div style={{maxWidth:620,margin:'0 auto',padding:'40px 40px 0'}}>
+      <div style={{fontSize:11,fontWeight:700,color:'var(--t3)',letterSpacing:'.07em',textTransform:'uppercase',marginBottom:16}} className="a1">7-day reminder email</div>
+      <div className="a2" style={{background:'var(--white)',borderRadius:'var(--r)',border:'1px solid var(--bdr)',overflow:'hidden'}}>
+        <div style={{background:'var(--navy)',padding:'24px 32px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+          <div style={{fontFamily:"'Fraunces',serif",fontSize:19,fontWeight:800,color:'#fff'}}>emptyhanded<span style={{display:'inline-block',width:6,height:6,borderRadius:'50%',background:'var(--amber)',marginLeft:2,verticalAlign:'middle',marginBottom:2}}/></div>
+          <div style={{fontSize:11,color:'rgba(255,255,255,.4)'}}>Gift Reminder</div>
+        </div>
+        <div style={{padding:'34px 32px'}}>
+          <div style={{fontSize:12,color:'var(--t3)',marginBottom:22}}>Your reminder for Sarah Chen's Birthday · May 23, 2026</div>
+          <div style={{fontFamily:"'Fraunces',serif",fontSize:28,fontWeight:700,color:'var(--navy)',letterSpacing:'-.02em',lineHeight:1.2,marginBottom:11}}>Sarah's birthday is in <em style={{fontStyle:'italic',color:'var(--amber)'}}>7 days.</em></div>
+          <p style={{fontSize:14,color:'var(--t2)',lineHeight:1.7,marginBottom:26}}>Don't show up empty handed. Here are your top saved picks — click through to order now.</p>
+          <div style={{display:'flex',flexDirection:'column',gap:11,marginBottom:26}}>
+            {[{n:"Vitruvi Stone Diffuser",w:"Her minimalist aesthetic makes this a natural fit.",img:"https://picsum.photos/seed/vitruvi/100/100",p:"$119"},{n:"Manduka PRO Yoga Mat",w:"She's serious about yoga — this is the mat she'll keep forever.",img:"https://picsum.photos/seed/manduka/100/100",p:"$88"}].map((p,i)=>(
+              <div key={i} style={{display:'flex',gap:13,alignItems:'center',background:'var(--wgray)',borderRadius:'var(--rs)',padding:13}}>
+                <img src={p.img} style={{width:56,height:56,borderRadius:9,objectFit:'cover',flexShrink:0}} alt=""/>
+                <div style={{flex:1}}><div style={{fontSize:13,fontWeight:600,color:'var(--navy)',marginBottom:3}}>{p.n} <span style={{color:'var(--amber-d)',fontWeight:700}}>{p.p}</span></div><div style={{fontSize:11,color:'var(--t3)',lineHeight:1.5,fontStyle:'italic'}}>{p.w}</div></div>
+                <button className="btn-navy" style={{flexShrink:0,fontSize:11,padding:'7px 13px'}}>Buy →</button>
+              </div>
+            ))}
+          </div>
+          <div style={{background:'var(--wgray)',borderRadius:'var(--rs)',padding:18,textAlign:'center',marginBottom:20}}>
+            <div style={{fontSize:13,color:'var(--t2)',marginBottom:9}}>6 more recommendations waiting in your dashboard</div>
+            <button className="btn-amber" style={{fontSize:13,padding:'10px 22px'}}>View all recommendations →</button>
+          </div>
+          <div style={{borderTop:'1px solid var(--bdr)',paddingTop:16,fontSize:11,color:'var(--t3)',lineHeight:1.7}}>
+            You're receiving this because Sarah Chen's birthday is on May 23, 2026 and you enabled 7-day reminders.<br/>
+            <span style={{textDecoration:'underline',cursor:'pointer'}}>Manage reminders</span> · <span style={{textDecoration:'underline',cursor:'pointer'}}>Unsubscribe</span>
+          </div>
+        </div>
+        <div style={{background:'var(--wgray)',padding:'18px 32px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+          <div style={{fontSize:11,color:'var(--t3)'}}>© 2026 EmptyHanded · Never show up empty handed.</div>
+          <div style={{display:'flex',gap:13}}>{['Terms','Privacy'].map(l=><span key={l} style={{fontSize:11,color:'var(--t3)',textDecoration:'underline',cursor:'pointer'}}>{l}</span>)}</div>
+        </div>
+      </div>
+    </div>
+    <div style={{padding:'0 40px'}}><Footer go={go}/></div>
+  </div>
+);
+
+/* ─── AUTH ─── */
+const GIcon = ()=><svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>;
+
+const Login = ({go}) => (
+  <div className="auth-pg sc-in">
+    <div className="auth-main">
+      <div className="auth-card a2">
+        <div className="auth-logo-a"><div className="auth-app-logo">emptyhanded<span/></div></div>
+        <div className="auth-title">Welcome back.</div>
+        <p className="auth-sub">Sign in to your account to continue.</p>
+        <div className="auth-field"><label className="auth-lbl">Email address</label><input className="auth-inp" type="email" placeholder="you@example.com"/></div>
+        <div className="auth-field"><label className="auth-lbl"><span>Password</span><span style={{color:'var(--amber-d)',cursor:'pointer',fontWeight:600,fontSize:11,letterSpacing:'normal',textTransform:'none'}}>Forgot password?</span></label><input className="auth-inp" type="password" placeholder="••••••••"/></div>
+        <button className="auth-btn navy" onClick={()=>go('Dashboard')}>Sign in →</button>
+        <div className="auth-div">or</div>
+        <button className="auth-google"><GIcon/>Continue with Google</button>
+        <div className="auth-switch">No account? <a onClick={()=>go('Signup')}>Sign up free</a></div>
+        <div className="auth-legal">By signing in you agree to our <a onClick={()=>go('Terms')}>Terms</a> and <a onClick={()=>go('Privacy')}>Privacy Policy</a>.</div>
+      </div>
+    </div>
+    <Footer go={go}/>
+  </div>
+);
+
+const Signup = ({go}) => (
+  <div className="auth-pg sc-in">
+    <div className="auth-main">
+      <div className="auth-card a2">
+        <div className="auth-logo-a"><div className="auth-app-logo">emptyhanded<span/></div><div style={{marginTop:6,fontSize:11,color:'var(--t3)'}}>Never show up empty handed again.</div></div>
+        <div className="auth-title">Create your account.</div>
+        <p className="auth-sub">Free forever. No credit card required.</p>
+        <div className="name-row">
+          <div className="auth-field"><label className="auth-lbl">First name</label><input className="auth-inp" placeholder="John"/></div>
+          <div className="auth-field"><label className="auth-lbl">Last name</label><input className="auth-inp" placeholder="Smith"/></div>
+        </div>
+        <div className="auth-field"><label className="auth-lbl">Email address</label><input className="auth-inp" type="email" placeholder="you@example.com"/></div>
+        <div className="auth-field"><label className="auth-lbl">Password</label><input className="auth-inp" type="password" placeholder="Min. 8 characters"/></div>
+        <button className="auth-btn amber" onClick={()=>go('Dashboard')}>Create free account →</button>
+        <div className="auth-div">or</div>
+        <button className="auth-google"><GIcon/>Sign up with Google</button>
+        <div className="auth-switch">Already have an account? <a onClick={()=>go('Login')}>Sign in</a></div>
+        <div className="auth-legal">By creating an account you agree to our <a onClick={()=>go('Terms')}>Terms</a> and <a onClick={()=>go('Privacy')}>Privacy Policy</a>.</div>
+      </div>
+    </div>
+    <Footer go={go}/>
+  </div>
+);
+
+/* ─── LEGAL ─── */
+const TERMS=[{id:'acceptance',title:'1. Acceptance of Terms',body:`<p>By accessing or using EmptyHanded ("Service"), you agree to be bound by these Terms. If you do not agree, please do not use the Service. These Terms constitute a legally binding agreement. We reserve the right to update them at any time.</p>`},{id:'service',title:'2. Description of Service',body:`<p>EmptyHanded is an AI-powered gift recommendation platform. The Service includes a calendar-based event system, AI-generated recommendations, integration with Amazon Associates and ShopMy, and email reminders.</p>`},{id:'accounts',title:'3. Account Registration',body:`<p>You must provide accurate information during registration and maintain the confidentiality of your credentials. Notify us at <strong>support@emptyhanded.co</strong> of any unauthorized use immediately.</p>`},{id:'billing',title:'4. Billing & Subscriptions',body:`<p><strong>Free Plan:</strong> 2 recipient profiles, basic recommendations. <strong>Pro Plan:</strong> $4.99/month — unlimited recipients, advanced AI, email reminders. Cancel anytime. No partial refunds. Price changes require 30 days' notice.</p>`},{id:'affiliate',title:'5. Affiliate Disclosure',body:`<p>EmptyHanded participates in the Amazon Associates Program and ShopMy. We earn commissions on qualifying purchases. These do not affect your price. All relationships are disclosed per FTC guidelines.</p>`},{id:'ai',title:'6. AI Recommendations',body:`<p>Recommendations are generated by AI for informational purposes only. We make no guarantees of suitability or availability. You are solely responsible for purchase decisions.</p>`},{id:'prohibited',title:'7. Prohibited Uses',body:`<ul><li>Using the Service for unlawful purposes</li><li>Reverse engineering or scraping the platform</li><li>Creating false recipient profiles</li><li>Impersonating any person or entity</li><li>Transmitting malware or harmful code</li></ul>`},{id:'liability',title:'8. Limitation of Liability',body:`<p>TO THE MAXIMUM EXTENT PERMITTED BY LAW, EMPTYHANDED SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES. TOTAL LIABILITY SHALL NOT EXCEED $50 OR THE AMOUNT PAID IN THE PAST 12 MONTHS.</p>`},{id:'governing',title:'9. Governing Law',body:`<p>These Terms are governed by the laws of the State of Delaware. Disputes are subject to exclusive jurisdiction of courts in Wilmington, Delaware.</p>`},{id:'contact',title:'10. Contact',body:`<div class="legal-cb"><p><strong>EmptyHanded, Inc.</strong></p><p>Email: <a href="mailto:legal@emptyhanded.co">legal@emptyhanded.co</a></p><p>Support: <a href="mailto:support@emptyhanded.co">support@emptyhanded.co</a></p></div>`}];
+const PRIVACY=[{id:'intro',title:'1. Introduction',body:`<p>EmptyHanded, Inc. is committed to protecting your privacy. This Policy explains how we collect, use, and safeguard your data. Contact us at <strong>privacy@emptyhanded.co</strong> with questions.</p>`},{id:'collect',title:'2. Information We Collect',body:`<p><strong>Account:</strong> Name, email, password (hashed). <strong>Profile:</strong> Recipient names, occasions, interests, preferences. <strong>Usage:</strong> Pages visited, features used, clicks. <strong>Payment:</strong> Processed by Stripe — we never store card details. <strong>Technical:</strong> Browser type, IP address, device info.</p>`},{id:'use',title:'3. How We Use Your Data',body:`<ul><li>To provide and improve the Service</li><li>To generate AI gift recommendations</li><li>To send event reminders and notifications</li><li>To process payments</li><li>To prevent fraud and ensure security</li></ul><p>We do not use your recipient data to train external AI models.</p>`},{id:'sharing',title:'4. Information Sharing',body:`<p>We do not sell your data. We share with: <strong>Service providers</strong> (Supabase, Stripe, Resend, Vercel — all under DPAs); <strong>Affiliate partners</strong> (Amazon, ShopMy receive standard referral data); <strong>Legal authorities</strong> when required by law.</p>`},{id:'cookies',title:'5. Cookies',body:`<p>Essential cookies for auth and sessions. Analytics cookies with consent. You may disable cookies in browser settings. We do not use cross-site tracking or sell data to advertisers.</p>`},{id:'retention',title:'6. Data Retention',body:`<p>Account and profile data retained while account is active. Deleted within 30 days of account closure, except where legally required.</p>`},{id:'rights',title:'7. Your Rights',body:`<p><strong>GDPR (EU/EEA):</strong> Right to access, rectify, erase, restrict, and port your data. <strong>CCPA (California):</strong> Right to know, delete, and opt out of sale (we don't sell data). Email <strong>privacy@emptyhanded.co</strong> to exercise rights. Response within 30 days.</p>`},{id:'children',title:"8. Children's Privacy",body:`<p>The Service is not for users under 13. We do not knowingly collect data from children under 13.</p>`},{id:'security',title:'9. Security',body:`<p>TLS encryption in transit. AES-256 at rest. Regular security audits. Bcrypt password hashing. Role-based access controls. No method is 100% secure.</p>`},{id:'contact',title:'10. Contact',body:`<div class="legal-cb"><p><strong>Privacy Team — EmptyHanded, Inc.</strong></p><p>Email: <a href="mailto:privacy@emptyhanded.co">privacy@emptyhanded.co</a></p></div>`}];
+
+const LegalPage = ({sections,title,badge,go}) => {
+  useScrollAnim(title);
+  return (
+    <div style={{paddingTop:'var(--nh)',background:'var(--cream)'}}>
+      <div className="legal-pg">
+        <div className="legal-toc">
+          <div className="legal-toc-title">Contents</div>
+          {sections.map(s=><a key={s.id} className="legal-toc-item" href={`#${s.id}`}>{s.title}</a>)}
+        </div>
+        <div>
+          <span className={badge} style={{marginBottom:24,display:'inline-block'}}>{title==='Terms & Conditions'?'Legal':'Privacy'}</span>
+          <div className="legal-title">{title}</div>
+          <div className="legal-updated">Last updated: May 16, 2026</div>
+          {sections.map((s,i)=>(
+            <div key={s.id} id={s.id} className={`legal-section sa d${(i%3)+1}`}>
+              <h2>{s.title}</h2>
+              <div dangerouslySetInnerHTML={{__html:s.body}}/>
+            </div>
+          ))}
+        </div>
+      </div>
+      <Footer go={go}/>
+    </div>
+  );
+};
+
+/* ─── APP ─── */
+const APP_SCREENS = ['Dashboard','Dashboard Empty','Add Event','Recommendations','Email'];
+const App = () => {
+  const [screen,setScreen]=useState('Landing');
+  const [k,setK]=useState(0);
+  const go = s => {window.scrollTo({top:0,behavior:'instant'});setScreen(s);setK(n=>n+1);};
+  const signedIn = APP_SCREENS.includes(screen);
+  return (
+    <div>
+      <Nav screen={screen} go={go} signedIn={signedIn}/>
+      <div key={k}>
+        {screen==='Landing'&&<Landing go={go}/>}
+        {screen==='Dashboard'&&<Dashboard go={go}/>}
+        {screen==='Dashboard Empty'&&<Dashboard empty go={go}/>}
+        {screen==='Add Event'&&<AddEvent go={go}/>}
+        {screen==='Recommendations'&&<Recommendations go={go}/>}
+        {screen==='Email'&&<Email go={go}/>}
+        {screen==='Login'&&<Login go={go}/>}
+        {screen==='Signup'&&<Signup go={go}/>}
+        {screen==='Terms'&&<LegalPage sections={TERMS} title="Terms & Conditions" badge="badge-am" go={go}/>}
+        {screen==='Privacy'&&<LegalPage sections={PRIVACY} title="Privacy Policy" badge="badge-nv" go={go}/>}
+      </div>
+    </div>
+  );
+};
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>

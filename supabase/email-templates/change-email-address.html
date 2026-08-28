@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <body style="margin:0;background:#f8f3e9;color:#101a2e;font-family:Arial,Helvetica,sans-serif;">
+    <div style="display:none;max-height:0;overflow:hidden;opacity:0;">Confirm your new EmptyHanded email address.</div>
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f8f3e9;padding:32px 16px;">
+      <tr>
+        <td align="center">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:560px;background:#ffffff;border:1px solid #eadfce;border-radius:24px;overflow:hidden;">
+            <tr>
+              <td style="padding:36px 40px 14px;font-size:22px;font-weight:800;letter-spacing:-0.7px;color:#101a2e;">emptyhanded<span style="color:#f59e0b;">.</span></td>
+            </tr>
+            <tr>
+              <td style="padding:16px 40px 40px;">
+                <p style="margin:0 0 12px;font-size:12px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:#d47d00;">Account update</p>
+                <h1 style="margin:0;font-size:34px;line-height:1.08;letter-spacing:-1.4px;color:#101a2e;">Confirm your new email.</h1>
+                <p style="margin:20px 0 0;font-size:16px;line-height:1.7;color:#596273;">Confirm <strong style="color:#101a2e;">{{ .NewEmail }}</strong> as the new email address for your EmptyHanded account.</p>
+                <table role="presentation" cellspacing="0" cellpadding="0" style="margin:28px 0;">
+                  <tr>
+                    <td style="border-radius:999px;background:#101a2e;">
+                      <a href="{{ .ConfirmationURL }}" style="display:inline-block;padding:15px 24px;color:#ffffff;font-size:15px;font-weight:700;text-decoration:none;">Confirm new email</a>
+                    </td>
+                  </tr>
+                </table>
+                <p style="margin:0;font-size:13px;line-height:1.6;color:#7a8290;">If the button doesn’t work, copy and paste this link into your browser:</p>
+                <p style="margin:8px 0 0;word-break:break-all;font-size:12px;line-height:1.6;color:#a05f00;">{{ .ConfirmationURL }}</p>
+              </td>
+            </tr>
+            <tr>
+              <td style="border-top:1px solid #eee5d8;padding:22px 40px;font-size:12px;line-height:1.6;color:#8b919b;">If you didn’t request this change for {{ .Email }}, do not confirm it and review your account security.</td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

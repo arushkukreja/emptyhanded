@@ -1,0 +1,51 @@
+<template>
+  <div data-hf-id="hf-dyay" id="root" data-composition-id="06-emptyhanded" data-width="1920" data-height="1080" data-start="0" data-duration="6.1">
+    <div data-hf-id="hf-nsph" id="promise-ground" class="clip promise-ground" data-start="0" data-duration="6.1" data-track-index="0"></div>
+    <div data-hf-id="hf-tl5g" id="promise-stage" class="clip promise-stage" data-start="0" data-duration="6.1" data-track-index="1">
+      <div data-hf-id="hf-onp8" class="promise-lockup" aria-label="Never show up emptyhanded again.">
+        <div data-hf-id="hf-yusr" id="promise-line-one" class="promise-line">Never show up</div>
+        <div data-hf-id="hf-ogmd" id="promise-logo" class="promise-logo" aria-label="emptyhanded.">emptyhanded<span data-hf-id="hf-itfz" class="promise-dot" aria-hidden="true"></span></div>
+        <div data-hf-id="hf-k6y1" id="promise-line-two" class="promise-line">again.</div>
+        <div data-hf-id="hf-cta1" id="promise-waitlist" class="promise-waitlist">
+          <div data-hf-id="hf-cta2" class="waitlist-copy">Join the waitlist for beta access as soon as we launch.</div>
+          <div data-hf-id="hf-cta3" class="waitlist-button">JOIN THE WAITLIST <span data-hf-id="hf-cta4">→</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    @font-face { font-family: "Fraunces"; src: url("capture/assets/fonts/Fraunces-Regular.ttf") format("truetype"); font-weight: 400; }
+    @font-face { font-family: "Plus Jakarta Sans"; src: url("capture/assets/fonts/Plus_Jakarta_Sans-Regular.ttf") format("truetype"); font-weight: 400; }
+    #root { position: relative; width: 1920px; height: 1080px; overflow: hidden; color: #fffefc; }
+    #root * { box-sizing: border-box; }
+    .promise-ground { position: absolute; inset: 0; background: #0f172a; }
+    .promise-ground::after { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at 50% 48%, rgba(180,83,9,.18), transparent 38%); }
+    .promise-stage { position: absolute; inset: 0; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+    .promise-lockup { width: 1500px; text-align: center; }
+    .promise-line { font: 500 62px/1.15 "Plus Jakarta Sans"; letter-spacing: .04em; opacity: 0; }
+    .promise-logo { margin: 28px 0 22px; display: flex; align-items: center; justify-content: center; font: 400 200px/.9 "Fraunces"; letter-spacing: -.045em; white-space: nowrap; opacity: 0; transform-origin: 50% 50%; }
+    .promise-dot { display: block; width: 76px; height: 76px; min-width: 76px; flex: 0 0 76px; align-self: flex-end; margin-left: 24px; margin-bottom: 10px; border-radius: 9999px; background: #f59e0b; }
+    .promise-waitlist { margin-top: 46px; opacity: 0; }
+    .waitlist-copy { font: 400 25px/1.35 "Plus Jakarta Sans"; color: #cbd5e1; }
+    .waitlist-button { width: 390px; height: 72px; margin: 26px auto 0; display: flex; align-items: center; justify-content: center; gap: 16px; border-radius: 999px; background: #f59e0b; color: #0f172a; font: 700 17px/1 "Plus Jakarta Sans"; letter-spacing: .14em; }
+    .waitlist-button span { font-size: 26px; line-height: 1; }
+  </style>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  <script>
+    (() => {
+      const lineOne = document.getElementById("promise-line-one");
+      const logo = document.getElementById("promise-logo");
+      const lineTwo = document.getElementById("promise-line-two");
+      const waitlist = document.getElementById("promise-waitlist");
+      const tl = gsap.timeline({ paused: true });
+      tl.fromTo(lineOne, { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.42, ease: "power3.out", immediateRender: false }, 0.18);
+      tl.fromTo(logo, { opacity: 0, scale: 0.92 }, { opacity: 1, scale: 1, duration: 0.58, ease: "power3.out", immediateRender: false }, 0.78);
+      tl.fromTo(lineTwo, { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.42, ease: "power3.out", immediateRender: false }, 1.56);
+      tl.fromTo(waitlist, { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.48, ease: "power3.out", immediateRender: false }, 2.28);
+      tl.to({}, { duration: 6.1 }, 0);
+      window.__timelines["06-emptyhanded"] = tl;
+    })();
+  </script>
+</template>

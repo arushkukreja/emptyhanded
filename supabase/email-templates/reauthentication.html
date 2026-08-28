@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <body style="margin:0;background:#f8f3e9;color:#101a2e;font-family:Arial,Helvetica,sans-serif;">
+    <div style="display:none;max-height:0;overflow:hidden;opacity:0;">Use this code to verify your identity in EmptyHanded.</div>
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f8f3e9;padding:32px 16px;">
+      <tr>
+        <td align="center">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:560px;background:#ffffff;border:1px solid #eadfce;border-radius:24px;overflow:hidden;">
+            <tr>
+              <td style="padding:36px 40px 14px;font-size:22px;font-weight:800;letter-spacing:-0.7px;color:#101a2e;">emptyhanded<span style="color:#f59e0b;">.</span></td>
+            </tr>
+            <tr>
+              <td style="padding:16px 40px 40px;">
+                <p style="margin:0 0 12px;font-size:12px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:#d47d00;">Identity check</p>
+                <h1 style="margin:0;font-size:34px;line-height:1.08;letter-spacing:-1.4px;color:#101a2e;">Verify it’s you.</h1>
+                <p style="margin:20px 0 18px;font-size:16px;line-height:1.7;color:#596273;">Enter this one-time code in EmptyHanded to continue with the sensitive account action.</p>
+                <p style="margin:0;padding:18px 20px;border:1px solid #eadfce;border-radius:14px;background:#f8f3e9;font-family:Courier New,monospace;font-size:30px;font-weight:700;letter-spacing:7px;text-align:center;color:#101a2e;">{{ .Token }}</p>
+                <p style="margin:18px 0 0;font-size:13px;line-height:1.6;color:#7a8290;">The code expires shortly and can only be used once. Never share it with anyone.</p>
+              </td>
+            </tr>
+            <tr>
+              <td style="border-top:1px solid #eee5d8;padding:22px 40px;font-size:12px;line-height:1.6;color:#8b919b;">If you didn’t request this verification for {{ .Email }}, you can safely ignore this email.</td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

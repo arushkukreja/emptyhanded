@@ -1,0 +1,91 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-cream-200;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    overflow-x: hidden;
+  }
+
+  body {
+    @apply bg-cream text-primary antialiased;
+    font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+    overflow-x: hidden;
+  }
+
+  ::selection {
+    @apply bg-accent-200 text-primary;
+  }
+
+  button, input, select, textarea {
+    font: inherit;
+  }
+
+  button, a {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+@layer components {
+  .display-type {
+    font-family: var(--font-display), Georgia, serif;
+  }
+
+  .eyebrow {
+    @apply text-[11px] font-bold uppercase tracking-[0.12em] text-accent-700;
+  }
+
+  .surface-card {
+    @apply rounded-2xl border border-cream-200 bg-white shadow-soft;
+  }
+
+  .focus-ring {
+    @apply focus:outline-none focus:ring-4 focus:ring-accent/15 focus:border-accent;
+  }
+}
+
+@keyframes orb-drift-a {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  45% { transform: translate3d(-36px, 30px, 0) scale(1.08); }
+  75% { transform: translate3d(22px, -18px, 0) scale(.94); }
+}
+
+@keyframes orb-drift-b {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(34px, -28px, 0) scale(1.1); }
+}
+
+@keyframes card-float {
+  0%, 100% { transform: rotate(2deg) translateY(0); }
+  50% { transform: rotate(2deg) translateY(-10px); }
+}
+
+@keyframes card-float-back {
+  0%, 100% { transform: rotate(-3deg) translateY(-3px); }
+  50% { transform: rotate(-3deg) translateY(7px); }
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-orb-a { animation: orb-drift-a 15s ease-in-out infinite; }
+.animate-orb-b { animation: orb-drift-b 19s ease-in-out infinite; }
+.animate-card-float { animation: card-float 7s ease-in-out infinite; }
+.animate-card-float-back { animation: card-float-back 9s ease-in-out infinite; }
+.animate-fade-up { animation: fade-up .7s cubic-bezier(.16,1,.3,1) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}

@@ -1,0 +1,34 @@
+<template>
+  <div data-hf-id="hf-q2j1" id="root" data-composition-id="02-already-remembered" data-width="1920" data-height="1080" data-start="0" data-duration="5.5">
+    <div data-hf-id="hf-jxya" id="dashboard-ground" class="clip dashboard-ground" data-start="0" data-duration="5.5" data-track-index="0"></div>
+    <div data-hf-id="hf-kt2r" id="dashboard-stage" class="clip dashboard-stage" data-start="0" data-duration="5.5" data-track-index="1">
+      <div data-hf-id="hf-f4oe" id="dashboard-window" class="dashboard-window">
+        <img data-hf-id="hf-viqa" class="dashboard-image" src="assets/scroll-000.png" alt="Signed-in EmptyHanded dashboard for Alex">
+      </div>
+      <div data-hf-id="hf-pjxd" id="dashboard-focus" class="dashboard-focus" aria-hidden="true"></div>
+    </div>
+  </div>
+
+  <style>
+    #root { position: relative; width: 1920px; height: 1080px; overflow: hidden; }
+    #root * { box-sizing: border-box; }
+    .dashboard-ground { position: absolute; inset: 0; background: #fffefc; }
+    .dashboard-stage { position: absolute; inset: 0; overflow: hidden; }
+    .dashboard-window { position: absolute; left: 110px; top: 62px; width: 1700px; height: 956px; overflow: hidden; background: #fff; border: 1px solid #e7e1d8; box-shadow: 0 24px 70px rgba(15,23,42,.12); opacity: 0; }
+    .dashboard-image { display: block; width: 1700px; height: 956px; object-fit: fill; }
+    .dashboard-focus { position: absolute; left: 346px; top: 405px; width: 1228px; height: 398px; border: 5px solid #f59e0b; box-shadow: 0 0 0 999px rgba(15,23,42,.12); pointer-events: none; opacity: 0; }
+  </style>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  <script>
+    (() => {
+      const windowEl = document.getElementById("dashboard-window");
+      const focus = document.getElementById("dashboard-focus");
+      const tl = gsap.timeline({ paused: true });
+      tl.fromTo(windowEl, { opacity: 0, scale: 0.975 }, { opacity: 1, scale: 1, duration: 0.62, ease: "power3.out", immediateRender: false }, 0.14);
+      tl.fromTo(focus, { opacity: 0 }, { opacity: 1, duration: 0.38, ease: "power2.out", immediateRender: false }, 1.02);
+      tl.to({}, { duration: 5.5 }, 0);
+      window.__timelines["02-already-remembered"] = tl;
+    })();
+  </script>
+</template>

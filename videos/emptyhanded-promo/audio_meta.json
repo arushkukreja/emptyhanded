@@ -1,0 +1,19 @@
+{
+  "bgm": null,
+  "bgm_pending": false,
+  "voices": [],
+  "sfx": [
+    {"frame": 1, "file": "assets/sfx/notification-chime.mp3", "offset_s": 0.12, "duration_s": 2.5, "volume": 0.14},
+    {"frame": 1, "file": "assets/sfx/click-soft.mp3", "offset_s": 3.48, "duration_s": 0.37, "volume": 0.2},
+    {"frame": 2, "file": "assets/sfx/whoosh-short.mp3", "offset_s": 0.14, "duration_s": 0.57, "volume": 0.16},
+    {"frame": 3, "file": "assets/sfx/typing-budget.wav", "offset_s": 0.25, "duration_s": 1.14, "volume": 0.18},
+    {"frame": 3, "file": "assets/sfx/typing-tastes.wav", "offset_s": 1.84, "duration_s": 2.08, "volume": 0.16},
+    {"frame": 3, "file": "assets/sfx/typing-payoff.wav", "offset_s": 4.18, "duration_s": 1.61, "volume": 0.18},
+    {"frame": 4, "file": "assets/sfx/click-soft.mp3", "offset_s": 1.14, "duration_s": 0.37, "volume": 0.18},
+    {"frame": 4, "file": "assets/sfx/click-soft.mp3", "offset_s": 2.62, "duration_s": 0.37, "volume": 0.18},
+    {"frame": 4, "file": "assets/sfx/click-soft.mp3", "offset_s": 4.96, "duration_s": 0.37, "volume": 0.22},
+    {"frame": 4, "file": "assets/sfx/pop.mp3", "offset_s": 5.58, "duration_s": 0.67, "volume": 0.14},
+    {"frame": 5, "file": "assets/sfx/click-soft.mp3", "offset_s": 1.18, "duration_s": 0.37, "volume": 0.22},
+    {"frame": 5, "file": "assets/sfx/chime.mp3", "offset_s": 1.88, "duration_s": 2.5, "volume": 0.12}
+  ]
+}
