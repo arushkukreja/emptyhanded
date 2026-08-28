@@ -61,6 +61,14 @@ export default function ProductForm() {
         <input name="image" required type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" onChange={event => onImageChange(event.target.files?.[0])} />
       </label>
 
+      <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-cream-200 bg-cream-50 p-4">
+        <input name="remove_background" type="checkbox" defaultChecked className="mt-0.5 h-4 w-4 shrink-0 accent-[#f59e0b]" />
+        <span>
+          <span className="block text-sm font-bold text-primary">Remove plain image background</span>
+          <span className="mt-1 block text-xs leading-5 text-primary-500">Recommended for product photos on white, gray, or solid backgrounds. The upload becomes a transparent PNG and uses the same neutral surface everywhere. Turn this off for lifestyle photos or detailed scenes.</span>
+        </span>
+      </label>
+
       {state.message && <p role="status" className={`rounded-xl p-3 text-sm font-semibold ${state.ok ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"}`}>{state.message}</p>}
       <button disabled={pending} className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-primary-800 disabled:cursor-not-allowed disabled:opacity-50"><PackagePlus size={17} className="text-accent" />{pending ? "Uploading product…" : "Add product to shop"}</button>
     </form>

@@ -6,6 +6,7 @@ import { generateRecommendations } from "@/lib/recommendations/gemini";
 import { amazonUrlFor } from "@/lib/recommendations/save";
 import { renderReminderEmail } from "@/lib/email/reminder";
 import { OCCASION_EMOJI, OCCASION_LABEL } from "@/lib/occasions";
+import { getProductImage } from "@/lib/product-images";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -70,6 +71,17 @@ export async function GET(request: Request) {
       .limit(3);
 
     if (!recs || recs.length === 0) {
+      const { data: latestRecs } = await admin
+        .from("recommendations")
+        .select("product_name, asin, amazon_url, budget_range, reason")
+        .eq("event_id", ev.id)
+        .order("created_at", { ascending: false })
+        .order("id", { ascending: true })
+        .limit(3);
+      recs = latestRecs;
+    }
+
+    if (!recs || recs.length === 0) {
       try {
         const { data: profile } = await admin
           .from("recipient_profiles")
@@ -102,12 +114,28 @@ export async function GET(request: Request) {
       }
     }
 
+    const catalogAsins = Array.from(new Set((recs ?? []).map(rec => rec.asin).filter((asin): asin is string => Boolean(asin))));
+    const imageByAsin = new Map<string, string>();
+    if (catalogAsins.length > 0) {
+      const { data: products } = await admin.from("products").select("asin, image_url").in("asin", catalogAsins);
+      for (const product of products ?? []) {
+        if (product.image_url) imageByAsin.set(product.asin, product.image_url);
+      }
+    }
+    const emailRecommendations = (recs ?? []).map(rec => ({
+      ...rec,
+      image_url: (() => {
+        const image = (rec.asin ? imageByAsin.get(rec.asin) : null) || getProductImage(rec.product_name);
+        return image?.startsWith("/") ? `${appUrl.replace(/\/$/, "")}${image}` : image ?? null;
+      })()
+    }));
+
     const { subject, html } = renderReminderEmail({
       recipient_name: ev.recipient_name,
       occasion_label: OCCASION_LABEL[ev.occasion_type] ?? ev.occasion_type,
       occasion_emoji: OCCASION_EMOJI[ev.occasion_type] ?? "🎁",
       formatted_date: format(parseISO(ev.event_date), "MMMM d, yyyy"),
-      recommendations: recs ?? [],
+      recommendations: emailRecommendations,
       app_url: appUrl,
       event_id: ev.id
     });

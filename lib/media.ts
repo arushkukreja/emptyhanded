@@ -1,6 +1,7 @@
 import "server-only";
 
 import { randomUUID } from "node:crypto";
+import sharp from "sharp";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
@@ -18,27 +19,101 @@ function validateImage(file: File) {
   return extension;
 }
 
-async function uploadImage(bucket: string, path: string, file: File) {
+async function uploadImage(bucket: string, path: string, body: Buffer, contentType: string) {
   const admin = createAdminClient();
-  const { error } = await admin.storage.from(bucket).upload(path, Buffer.from(await file.arrayBuffer()), {
-    contentType: file.type,
+  const { error } = await admin.storage.from(bucket).upload(path, body, {
+    contentType,
     cacheControl: "31536000",
     upsert: false
   });
   if (error) throw new Error(error.message);
 }
 
+async function removeConnectedPlainBackground(file: File) {
+  const source = Buffer.from(await file.arrayBuffer());
+  const { data, info } = await sharp(source)
+    .rotate()
+    .resize({ width: 1600, height: 1600, fit: "inside", withoutEnlargement: true })
+    .ensureAlpha()
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+
+  const { width, height, channels } = info;
+  const pixelCount = width * height;
+  const cornerIndexes = [0, width - 1, (height - 1) * width, pixelCount - 1];
+  const opaqueCorners = cornerIndexes.filter(index => data[index * channels + 3] > 220);
+  if (opaqueCorners.length < 2) {
+    return sharp(data, { raw: info }).png({ compressionLevel: 9 }).toBuffer();
+  }
+
+  const background = opaqueCorners.reduce((sum, index) => {
+    const offset = index * channels;
+    sum[0] += data[offset];
+    sum[1] += data[offset + 1];
+    sum[2] += data[offset + 2];
+    return sum;
+  }, [0, 0, 0]).map(value => value / opaqueCorners.length);
+  const toleranceSquared = 58 * 58;
+  const visited = new Uint8Array(pixelCount);
+  const queue = new Int32Array(pixelCount);
+  let head = 0;
+  let tail = 0;
+
+  function matchesBackground(index: number) {
+    const offset = index * channels;
+    if (data[offset + 3] < 16) return true;
+    const red = data[offset] - background[0];
+    const green = data[offset + 1] - background[1];
+    const blue = data[offset + 2] - background[2];
+    return red * red + green * green + blue * blue <= toleranceSquared;
+  }
+
+  function enqueue(index: number) {
+    if (visited[index] || !matchesBackground(index)) return;
+    visited[index] = 1;
+    queue[tail++] = index;
+  }
+
+  for (let x = 0; x < width; x += 1) {
+    enqueue(x);
+    enqueue((height - 1) * width + x);
+  }
+  for (let y = 0; y < height; y += 1) {
+    enqueue(y * width);
+    enqueue(y * width + width - 1);
+  }
+
+  while (head < tail) {
+    const index = queue[head++];
+    data[index * channels + 3] = 0;
+    const x = index % width;
+    const y = Math.floor(index / width);
+    if (x > 0) enqueue(index - 1);
+    if (x + 1 < width) enqueue(index + 1);
+    if (y > 0) enqueue(index - width);
+    if (y + 1 < height) enqueue(index + width);
+  }
+
+  return sharp(data, { raw: info })
+    .trim({ background: { r: 0, g: 0, b: 0, alpha: 0 } })
+    .png({ compressionLevel: 9 })
+    .toBuffer();
+}
+
 export async function uploadPrivateProfileImage(userId: string, scope: "self" | "recipients", file: File) {
   const extension = validateImage(file);
   const path = `${userId}/${scope}/${randomUUID()}.${extension}`;
-  await uploadImage("profile-images", path, file);
+  await uploadImage("profile-images", path, Buffer.from(await file.arrayBuffer()), file.type);
   return path;
 }
 
-export async function uploadPublicProductImage(userId: string, file: File) {
+export async function uploadPublicProductImage(userId: string, file: File, removeBackground = true) {
   const extension = validateImage(file);
-  const path = `${userId}/${randomUUID()}.${extension}`;
-  await uploadImage("product-images", path, file);
+  const body = removeBackground ? await removeConnectedPlainBackground(file) : Buffer.from(await file.arrayBuffer());
+  const outputExtension = removeBackground ? "png" : extension;
+  const contentType = removeBackground ? "image/png" : file.type;
+  const path = `${userId}/${randomUUID()}.${outputExtension}`;
+  await uploadImage("product-images", path, body, contentType);
   const { data } = createAdminClient().storage.from("product-images").getPublicUrl(path);
   return { path, publicUrl: data.publicUrl };
 }

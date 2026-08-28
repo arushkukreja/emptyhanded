@@ -43,7 +43,8 @@ export async function createCatalogProduct(_previous: ProductFormState, formData
 
   let uploadedPath: string | null = null;
   try {
-    const upload = await uploadPublicProductImage(user.id, image);
+    const removeBackground = formData.get("remove_background") === "on";
+    const upload = await uploadPublicProductImage(user.id, image, removeBackground);
     uploadedPath = upload.path;
     const admin = createAdminClient();
     const { error } = await admin.from("products").insert({
@@ -61,7 +62,7 @@ export async function createCatalogProduct(_previous: ProductFormState, formData
     revalidatePath("/admin/products");
     revalidatePath("/shop");
     revalidatePath("/recommendations");
-    return { ok: true, message: `${parsed.data.name} was added to the shop` };
+    return { ok: true, message: `${parsed.data.name} was added to the shop${removeBackground ? " with a transparent background" : ""}` };
   } catch (error) {
     if (uploadedPath) await createAdminClient().storage.from("product-images").remove([uploadedPath]);
     return { ok: false, message: error instanceof Error ? error.message : "Could not add the product" };
