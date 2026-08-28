@@ -156,7 +156,7 @@ export default async function EventDetailPage(props: { params: Promise<{ id: str
         </section>
 
         <div className="mt-10 grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_310px] xl:gap-10">
-          <main>
+          <div>
             <div className="mb-6">
               <p className="eyebrow">Curated for them</p>
               <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
@@ -172,27 +172,8 @@ export default async function EventDetailPage(props: { params: Promise<{ id: str
 
             {orderedRecommendations.length === 0 ? (
               <EmptyState title="No recommendations yet" description="Try regenerating—we'll pull together a fresh, thoughtful batch." />
-            ) : (
-              <>
-                <RecommendationCard {...orderedRecommendations[0]} eventId={event.id} featured index={0} />
-                {orderedRecommendations.length > 1 && (
-                  <section aria-labelledby="additional-options-title" className="mt-9">
-                    <div className="mb-5">
-                      <p className="eyebrow">More to explore</p>
-                      <h3 id="additional-options-title" className="display-type mt-1 text-2xl font-bold tracking-[-0.025em] text-primary sm:text-3xl">
-                        Additional options
-                      </h3>
-                    </div>
-                    <div className="grid items-stretch gap-5 md:grid-cols-2 xl:grid-cols-3">
-                      {orderedRecommendations.slice(1).map((rec, index) => (
-                        <RecommendationCard key={rec.id} {...rec} eventId={event.id} index={index + 1} />
-                      ))}
-                    </div>
-                  </section>
-                )}
-              </>
-            )}
-          </main>
+            ) : <RecommendationCard {...orderedRecommendations[0]} eventId={event.id} featured index={0} />}
+          </div>
 
           {profile && (
             <aside className="rounded-[22px] border border-cream-200 bg-white p-6 shadow-soft lg:sticky lg:top-24" aria-labelledby="recipient-profile-title">
@@ -212,6 +193,22 @@ export default async function EventDetailPage(props: { params: Promise<{ id: str
             </aside>
           )}
         </div>
+
+        {orderedRecommendations.length > 1 && (
+          <section aria-labelledby="additional-options-title" className="mt-10">
+            <div className="mb-5">
+              <p className="eyebrow">More to explore</p>
+              <h3 id="additional-options-title" className="display-type mt-1 text-2xl font-bold tracking-[-0.025em] text-primary sm:text-3xl">
+                Additional options
+              </h3>
+            </div>
+            <div className="grid items-stretch gap-5 md:grid-cols-2 xl:grid-cols-3">
+              {orderedRecommendations.slice(1).map((rec, index) => (
+                <RecommendationCard key={rec.id} {...rec} eventId={event.id} index={index + 1} />
+              ))}
+            </div>
+          </section>
+        )}
       </div>
     </div>
   );

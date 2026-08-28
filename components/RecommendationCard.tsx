@@ -28,6 +28,7 @@ export default function RecommendationCard({ id, eventId, product_name, amazon_u
     || productImage?.includes("/images/catalog/")
     || productImage?.includes("/images/recommendations/");
   const shouldBlendImageBackground = Boolean(productImage && /\.(?:jpe?g|webp)(?:\?.*)?$/i.test(productImage));
+  const imageSurfaceClass = "bg-[#f5f0e8]";
   const productLinkLabel = amazon_url.includes("amazon.com/s?") ? "Find on Amazon" : "View product";
   const toggle = () => {
     const nextSaved = !saved;
@@ -41,7 +42,7 @@ export default function RecommendationCard({ id, eventId, product_name, amazon_u
   if (simple) {
     return (
       <article className="group grid h-full min-h-[380px] grid-rows-[220px_1fr] overflow-hidden rounded-[20px] border border-cream-200 bg-white shadow-soft transition hover:-translate-y-1 hover:shadow-lift">
-        <div className="relative h-[220px] overflow-hidden bg-[#f5f0e8]">
+        <div className={`relative h-[220px] overflow-hidden ${imageSurfaceClass}`}>
           {productImage ? (
             <Image src={productImage} alt={product_name} fill priority={index < 2} sizes="(max-width: 767px) 100vw, (max-width: 1024px) 50vw, 33vw" className={`object-contain p-6 transition duration-700 group-hover:scale-[1.03] ${shouldBlendImageBackground ? "mix-blend-multiply" : ""}`} />
           ) : (
@@ -59,13 +60,12 @@ export default function RecommendationCard({ id, eventId, product_name, amazon_u
   if (featured) {
     return (
       <article className="group mb-6 grid overflow-hidden rounded-[22px] border border-cream-200 bg-white shadow-soft transition hover:-translate-y-1 hover:shadow-lift sm:rounded-[24px] lg:grid-cols-[340px_1fr]">
-        <div className="relative min-h-[220px] overflow-hidden bg-cream-100 sm:min-h-64 lg:min-h-[330px]">
+        <div className={`relative min-h-[220px] overflow-hidden sm:min-h-64 lg:min-h-[330px] ${imageSurfaceClass}`}>
           {productImage ? (
             <Image src={productImage} alt={product_name} fill priority={index === 0} sizes="(max-width: 1024px) 100vw, 340px" className={`${isProductCutout ? "object-contain p-6" : "object-cover"} ${shouldBlendImageBackground ? "mix-blend-multiply" : ""} transition duration-700 group-hover:scale-105`} />
           ) : (
             <div className="absolute inset-0 grid place-items-center bg-gradient-to-br from-cream to-accent-100 text-accent-700"><Package size={54} strokeWidth={1.25} aria-hidden="true" /></div>
           )}
-          <span className="absolute inset-0 bg-gradient-to-t from-primary/35 via-transparent to-transparent" />
           {budget_range && <span className="absolute left-4 top-4 rounded-full bg-accent px-3 py-1.5 text-[11px] font-extrabold text-primary">{budget_range}</span>}
           <span className="absolute right-4 top-4 rounded-full bg-white/90 px-3 py-1.5 text-[11px] font-bold text-accent-700 backdrop-blur">✦ Best match</span>
         </div>
@@ -83,21 +83,20 @@ export default function RecommendationCard({ id, eventId, product_name, amazon_u
   }
 
   return (
-    <article className="group grid h-full min-h-[470px] grid-rows-[190px_1fr] overflow-hidden rounded-[20px] border border-cream-200 bg-white shadow-soft transition hover:-translate-y-1 hover:shadow-lift">
-      <div className="relative h-[190px] overflow-hidden bg-cream-100">
+    <article className="group grid h-full min-h-[486px] grid-rows-[190px_1fr] overflow-hidden rounded-[20px] border border-cream-200 bg-white shadow-soft transition hover:-translate-y-1 hover:shadow-lift">
+      <div className={`relative h-[190px] overflow-hidden ${imageSurfaceClass}`}>
         {productImage ? (
           <Image src={productImage} alt={product_name} fill priority={index === 0} sizes="(max-width: 767px) 100vw, (max-width: 1024px) 50vw, 33vw" className={`${isProductCutout ? "object-contain p-5" : "object-cover"} ${shouldBlendImageBackground ? "mix-blend-multiply" : ""} transition duration-700 group-hover:scale-105`} />
         ) : (
           <div className="absolute inset-0 grid place-items-center bg-gradient-to-br from-cream to-accent-100 text-accent-700"><Package size={46} strokeWidth={1.25} aria-hidden="true" /></div>
         )}
-        <span className="absolute inset-0 bg-gradient-to-t from-primary/25 via-transparent to-transparent" />
         {budget_range && <span className="absolute left-2 top-2 rounded-full bg-accent px-2.5 py-1 text-[10px] font-extrabold text-primary">{budget_range}</span>}
         <button type="button" onClick={toggle} disabled={pending} aria-label={saved ? "Unsave" : "Save"} className={`absolute right-2 top-2 grid h-9 w-9 place-items-center rounded-full bg-white/90 shadow-sm backdrop-blur transition ${saved ? "text-accent" : "text-primary-300 hover:text-accent"}`}><Heart size={17} fill={saved ? "currentColor" : "none"} /></button>
       </div>
-      <div className="grid grid-rows-[16px_48px_80px_44px] gap-3 p-4 sm:p-5">
+      <div className="grid grid-rows-[16px_48px_96px_44px] gap-3 p-4 sm:p-5">
         <p className="h-4 text-[10px] font-bold leading-4 tracking-[0.12em] text-primary-400">PICK {String(index + 1).padStart(2, "0")}</p>
         <h3 className="line-clamp-2 h-12 overflow-hidden font-bold leading-6 tracking-[-0.015em] text-primary">{product_name}</h3>
-        <p className="line-clamp-3 h-20 overflow-hidden rounded-lg border-l-2 border-accent bg-cream-100 p-3 text-xs italic leading-5 text-primary-500">{reason}</p>
+        <p tabIndex={0} aria-label={`Why ${product_name} fits`} className="h-24 overflow-y-auto overscroll-contain rounded-lg border-l-2 border-accent bg-cream-100 p-3 pr-4 text-xs italic leading-5 text-primary-500 outline-none focus:ring-2 focus:ring-accent/30">{reason}</p>
         <a href={amazon_url} target="_blank" rel="noopener noreferrer" aria-label={`${productLinkLabel}: ${product_name}`} className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-primary px-4 text-xs font-semibold text-white transition hover:bg-primary-800">{productLinkLabel} <ArrowUpRight size={14} /></a>
       </div>
     </article>
