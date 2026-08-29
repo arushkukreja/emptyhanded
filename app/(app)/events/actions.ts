@@ -5,7 +5,10 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { addYears, format, isValid, parseISO } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
-import { generateRecommendations } from "@/lib/recommendations/gemini";
+import {
+  AiGenerationRateLimitError,
+  generateUserRecommendations
+} from "@/lib/recommendations/user-generation";
 import { saveRecommendations } from "@/lib/recommendations/save";
 import { trackValidationEvent } from "@/lib/validation-events";
 import { ageRangeForAge } from "@/lib/occasions";
@@ -88,18 +91,23 @@ export async function createEvent(input: CreateEventInput) {
   await trackValidationEvent(user.id, "occasion_created", { occasion_type: parsed.occasion_type });
 
   try {
-    const recs = await generateRecommendations({
-      recipient_name: parsed.recipient_name,
-      occasion_type: parsed.occasion_type,
-      event_date: parsed.event_date,
-      relationship: parsed.relationship,
-      age: parsed.age,
-      age_range: ageRange,
-      gender: parsed.gender,
-      archetypes: parsed.archetypes,
-      interests: parsed.interests,
-      budget_tier: parsed.budget_tier,
-      past_gifts: parsed.past_gifts
+    const recs = await generateUserRecommendations({
+      userId: user.id,
+      eventId: event.id,
+      operation: "create",
+      profile: {
+        recipient_name: parsed.recipient_name,
+        occasion_type: parsed.occasion_type,
+        event_date: parsed.event_date,
+        relationship: parsed.relationship,
+        age: parsed.age,
+        age_range: ageRange,
+        gender: parsed.gender,
+        archetypes: parsed.archetypes,
+        interests: parsed.interests,
+        budget_tier: parsed.budget_tier,
+        past_gifts: parsed.past_gifts
+      }
     });
     await saveRecommendations(supabase, event.id, recs);
   } catch (e) {
@@ -112,6 +120,7 @@ export async function createEvent(input: CreateEventInput) {
 }
 
 export async function regenerateRecommendations(eventId: string) {
+  if (!z.string().uuid().safeParse(eventId).success) return { error: "Invalid event" };
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
@@ -120,6 +129,7 @@ export async function regenerateRecommendations(eventId: string) {
     .from("events")
     .select("id, recipient_name, occasion_type, event_date")
     .eq("id", eventId)
+    .eq("user_id", user.id)
     .single();
   if (!event) return { error: "Not found" };
 
@@ -129,22 +139,33 @@ export async function regenerateRecommendations(eventId: string) {
     .eq("event_id", eventId)
     .maybeSingle();
 
-  const recs = await generateRecommendations({
-    recipient_name: event.recipient_name,
-    occasion_type: event.occasion_type,
-    event_date: event.event_date,
-    relationship: profile?.relationship,
-    age: profile?.age,
-    age_range: profile?.age_range,
-    gender: profile?.gender,
-    archetypes: profile?.archetypes ?? [],
-    interests: profile?.interests,
-    budget_tier: profile?.budget_tier,
-    past_gifts: profile?.past_gifts
-  });
-  await saveRecommendations(supabase, eventId, recs);
-  revalidatePath(`/events/${eventId}`);
-  return { ok: true };
+  try {
+    const recs = await generateUserRecommendations({
+      userId: user.id,
+      eventId,
+      operation: "regenerate",
+      profile: {
+        recipient_name: event.recipient_name,
+        occasion_type: event.occasion_type,
+        event_date: event.event_date,
+        relationship: profile?.relationship,
+        age: profile?.age,
+        age_range: profile?.age_range,
+        gender: profile?.gender,
+        archetypes: profile?.archetypes ?? [],
+        interests: profile?.interests,
+        budget_tier: profile?.budget_tier,
+        past_gifts: profile?.past_gifts
+      }
+    });
+    await saveRecommendations(supabase, eventId, recs);
+    revalidatePath(`/events/${eventId}`);
+    return { ok: true };
+  } catch (error) {
+    if (error instanceof AiGenerationRateLimitError) return { error: error.message };
+    console.error("Recommendation regeneration failed", error);
+    return { error: "Unable to regenerate recommendations right now. Please try again." };
+  }
 }
 
 export async function updateEventProfile(eventId: string, input: CreateEventInput) {

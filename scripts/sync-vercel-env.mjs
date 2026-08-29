@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 
 function parseEnv(source) {
@@ -30,12 +30,19 @@ function setVercelEnv(name, value, { sensitive = false, environments = "producti
   console.log(`Configured ${name}`);
 }
 
-const local = parseEnv(readFileSync(".env.local", "utf8"));
+const local = new Map();
+for (const path of [".env.local", ".env.development.local"]) {
+  if (!existsSync(path)) continue;
+  for (const [name, value] of parseEnv(readFileSync(path, "utf8"))) {
+    local.set(name, value);
+  }
+}
 const required = [
   ["NEXT_PUBLIC_SUPABASE_URL", false],
   ["NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY", false],
-  ["SUPABASE_SERVICE_ROLE_KEY", true],
-  ["GEMINI_API_KEY", true]
+  ["SUPABASE_SECRET_KEY", true],
+  ["GEMINI_API_KEY", true],
+  ["RATE_LIMIT_SECRET", true]
 ];
 
 for (const [name, sensitive] of required) {

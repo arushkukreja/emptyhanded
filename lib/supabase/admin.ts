@@ -3,11 +3,11 @@ import "server-only";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 
 export function hasSupabaseAdminKey() {
-  return Boolean(process.env.SUPABASE_SECRET_KEY ?? process.env.SUPABASE_SERVICE_ROLE_KEY);
+  return Boolean(process.env.SUPABASE_SECRET_KEY);
 }
 
 export function createAdminClient() {
-  const secretKey = process.env.SUPABASE_SECRET_KEY ?? process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const secretKey = process.env.SUPABASE_SECRET_KEY;
   if (!secretKey) throw new Error("Missing Supabase secret key");
 
   return createSupabaseClient(

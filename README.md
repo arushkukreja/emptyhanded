@@ -2,9 +2,9 @@
 
 A gift recommendation web app. Track upcoming events for the people in your life, get personalized gift ideas from Gemini, and receive an email reminder a week before the date.
 
-- Next.js 14 (App Router) + TypeScript + Tailwind
+- Next.js 16 (App Router) + TypeScript + Tailwind
 - Supabase (auth + Postgres + RLS)
-- Gemini (`gemini-2.0-flash`) for recommendations
+- Gemini (`gemini-3.6-flash`) for recommendations
 - Stripe Checkout for the $4.99/mo subscription
 - Resend for 7-day reminder emails, triggered by a Vercel cron
 
@@ -25,26 +25,30 @@ Copy `.env.local.example` to `.env.local` and fill in:
 
 ```
 NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
-SUPABASE_SERVICE_ROLE_KEY=
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
+SUPABASE_SECRET_KEY=
 GEMINI_API_KEY=
 STRIPE_SECRET_KEY=
 STRIPE_WEBHOOK_SECRET=
 STRIPE_PRICE_ID=
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
 RESEND_API_KEY=
+EMAIL_UNSUBSCRIBE_SECRET=
+RATE_LIMIT_SECRET=
 CRON_SECRET=
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
 - `GEMINI_API_KEY` — Google AI Studio key.
+- `SUPABASE_SECRET_KEY` — a modern server-only Supabase secret key. Never prefix it with `NEXT_PUBLIC_` or commit it.
+- `RATE_LIMIT_SECRET` — at least 32 random bytes used to pseudonymize rate-limit identifiers.
 - `STRIPE_PRICE_ID` — a recurring $4.99/month Price in Stripe.
 - `CRON_SECRET` — any long random string; Vercel Cron sends it as `Authorization: Bearer <secret>` (configure it as an env var on the project).
 - `RESEND_API_KEY` — Resend account. You'll also need to verify `emptyhanded.app` (or change the `from:` address in `app/api/cron/reminders/route.ts`).
 
 ## 3. Supabase setup
 
-1. Create a Supabase project. Copy the URL, anon key, and service-role key into `.env.local`.
+1. Create a Supabase project. Copy the URL, publishable key, and server-side secret key into a gitignored local environment file.
 2. In the Supabase SQL editor, run **`supabase/migrations/0001_init.sql`** (creates tables, RLS, trigger, indexes).
 3. Run **`supabase/migrations/0002_seed_products.sql`** to seed the sample catalog.
 

@@ -1,8 +1,12 @@
 import { createClient } from "@supabase/supabase-js";
 
+if (!process.env.SUPABASE_SECRET_KEY) {
+  throw new Error("Missing SUPABASE_SECRET_KEY");
+}
+
 const admin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY,
+  process.env.SUPABASE_SECRET_KEY,
   { auth: { persistSession: false, autoRefreshToken: false } }
 );
 

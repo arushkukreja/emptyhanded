@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createAdminClient, hasSupabaseAdminKey } from "@/lib/supabase/admin";
+import { LeadRateLimitError, reserveLeadCapture } from "@/lib/lead-rate-limit";
 
 export const runtime = "nodejs";
 
@@ -20,15 +21,27 @@ function optionalFormValue(formData: FormData, key: string) {
   return typeof value === "string" && value.trim() ? value.trim() : undefined;
 }
 
-function signupRedirect(request: Request, email: string, status: "captured" | "error") {
+function signupRedirect(request: Request, email: string, status: "captured" | "error" | "limited") {
   const url = new URL("/signup", request.url);
   url.searchParams.set("email", email);
   url.searchParams.set("lead", status);
-  return NextResponse.redirect(url, { status: 303 });
+  const response = NextResponse.redirect(url, { status: 303 });
+  if (status === "limited") response.headers.set("Retry-After", "600");
+  return response;
 }
 
 export async function POST(request: Request) {
-  const formData = await request.formData();
+  const contentLength = Number(request.headers.get("content-length") ?? "0");
+  if (Number.isFinite(contentLength) && contentLength > 16_384) {
+    return NextResponse.json({ error: "Request is too large." }, { status: 413 });
+  }
+
+  let formData: FormData;
+  try {
+    formData = await request.formData();
+  } catch {
+    return NextResponse.json({ error: "Invalid form submission." }, { status: 400 });
+  }
   const parsed = LeadSchema.safeParse({
     email: formData.get("email"),
     source: optionalFormValue(formData, "source"),
@@ -49,6 +62,16 @@ export async function POST(request: Request) {
 
   if (!hasSupabaseAdminKey()) {
     console.error("Lead capture is missing a Supabase admin key");
+    return signupRedirect(request, email, "error");
+  }
+
+  try {
+    await reserveLeadCapture(request, email);
+  } catch (error) {
+    if (error instanceof LeadRateLimitError) {
+      return signupRedirect(request, email, "limited");
+    }
+    console.error("Lead capture rate limit failed", error);
     return signupRedirect(request, email, "error");
   }
 

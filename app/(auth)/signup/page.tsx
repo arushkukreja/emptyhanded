@@ -63,6 +63,8 @@ export default function SignupPage(props: { searchParams: Promise<{ email?: stri
       <h1 className="display-type text-[30px] font-black leading-tight tracking-[-0.04em] text-primary sm:text-[34px]">Create your account.</h1>
       <p className="mt-1 text-base text-primary-600">Free forever. No credit card required.</p>
       {searchParams.lead === "captured" && <p className="mt-4 rounded-xl bg-accent-50 px-4 py-3 text-sm font-medium text-accent-700">You&apos;re on the launch list. Create your free account to try EmptyHanded now.</p>}
+      {searchParams.lead === "limited" && <p role="alert" className="mt-4 rounded-xl bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">Too many launch-list requests were submitted. Please try again later—or create your account now.</p>}
+      {searchParams.lead === "error" && <p role="alert" className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm font-medium text-red-700">We couldn&apos;t save that launch-list request. You can still create your account now.</p>}
       <div className="mt-5">
         <GoogleAuthButton next={safeNext} />
       </div>
