@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createAdminClient, hasSupabaseAdminKey } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
 
@@ -47,8 +47,8 @@ export async function POST(request: Request) {
   const email = parsed.data.email.toLowerCase();
   if (parsed.data.company) return signupRedirect(request, email, "captured");
 
-  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
-    console.error("Lead capture is missing SUPABASE_SERVICE_ROLE_KEY");
+  if (!hasSupabaseAdminKey()) {
+    console.error("Lead capture is missing a Supabase admin key");
     return signupRedirect(request, email, "error");
   }
 

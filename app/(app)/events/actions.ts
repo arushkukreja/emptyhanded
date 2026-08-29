@@ -9,7 +9,7 @@ import { generateRecommendations } from "@/lib/recommendations/gemini";
 import { saveRecommendations } from "@/lib/recommendations/save";
 import { trackValidationEvent } from "@/lib/validation-events";
 import { ageRangeForAge } from "@/lib/occasions";
-import { uploadPrivateProfileImage } from "@/lib/media";
+import { removePrivateProfileImage, uploadPrivateProfileImage } from "@/lib/media";
 
 const CreateEventSchema = z.object({
   occasion_type: z.enum([
@@ -63,7 +63,10 @@ export async function createEvent(input: CreateEventInput) {
     })
     .select("id")
     .single();
-  if (eventErr || !event) return { error: eventErr?.message ?? "Failed to create event" };
+  if (eventErr || !event) {
+    if (parsed.avatar_path) await removePrivateProfileImage(user.id, parsed.avatar_path).catch(() => undefined);
+    return { error: eventErr?.message ?? "Failed to create event" };
+  }
 
   const { error: profErr } = await supabase.from("recipient_profiles").insert({
     event_id: event.id,
@@ -79,6 +82,7 @@ export async function createEvent(input: CreateEventInput) {
   });
   if (profErr) {
     await supabase.from("events").delete().eq("id", event.id);
+    if (parsed.avatar_path) await removePrivateProfileImage(user.id, parsed.avatar_path).catch(() => undefined);
     return { error: profErr.message };
   }
   await trackValidationEvent(user.id, "occasion_created", { occasion_type: parsed.occasion_type });
@@ -162,6 +166,12 @@ export async function updateEventProfile(eventId: string, input: CreateEventInpu
     .maybeSingle();
   if (!event) return { error: "Event not found" };
 
+  const { data: existingProfile } = await supabase
+    .from("recipient_profiles")
+    .select("avatar_path")
+    .eq("event_id", eventId)
+    .maybeSingle();
+
   const { error: eventError } = await supabase
     .from("events")
     .update({
@@ -187,6 +197,10 @@ export async function updateEventProfile(eventId: string, input: CreateEventInpu
     })
     .eq("event_id", eventId);
   if (profileError) return { error: profileError.message };
+
+  if (parsed.avatar_path && existingProfile?.avatar_path && existingProfile.avatar_path !== parsed.avatar_path) {
+    await removePrivateProfileImage(user.id, existingProfile.avatar_path).catch(() => undefined);
+  }
 
   revalidatePath(`/events/${eventId}`);
   revalidatePath("/dashboard");

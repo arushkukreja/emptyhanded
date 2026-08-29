@@ -5,6 +5,7 @@ import sharp from "sharp";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+const PRIVATE_IMAGE_BUCKET = "profile-images";
 const IMAGE_EXTENSIONS: Record<string, string> = {
   "image/jpeg": "jpg",
   "image/png": "png",
@@ -26,6 +27,44 @@ async function uploadImage(bucket: string, path: string, body: Buffer, contentTy
     cacheControl: "31536000",
     upsert: false
   });
+  if (error) throw new Error(error.message);
+}
+
+type PrivateImageScope = "self" | "recipients";
+
+function mediaUploadError(message: string) {
+  if (message.includes("media_upload_rate_limit")) {
+    return new Error("Too many image uploads. Try again in 10 minutes.");
+  }
+  if (message.includes("media_upload_count_limit")) {
+    return new Error("You have reached the 50-image limit. Replace an existing image before uploading another.");
+  }
+  if (message.includes("media_upload_storage_limit")) {
+    return new Error("You have reached the 100 MB image storage limit.");
+  }
+  return new Error(message);
+}
+
+async function reservePrivateImage(userId: string, scope: PrivateImageScope, path: string, sizeBytes: number) {
+  const { error } = await createAdminClient().rpc("reserve_media_upload", {
+    p_user_id: userId,
+    p_bucket_id: PRIVATE_IMAGE_BUCKET,
+    p_object_path: path,
+    p_scope: scope,
+    p_size_bytes: sizeBytes
+  });
+  if (error) throw mediaUploadError(error.message);
+}
+
+async function finishPrivateImage(userId: string, path: string, succeeded: boolean) {
+  const { error } = await createAdminClient().rpc(
+    succeeded ? "complete_media_upload" : "fail_media_upload",
+    {
+      p_user_id: userId,
+      p_bucket_id: PRIVATE_IMAGE_BUCKET,
+      p_object_path: path
+    }
+  );
   if (error) throw new Error(error.message);
 }
 
@@ -100,11 +139,44 @@ async function removeConnectedPlainBackground(file: File) {
     .toBuffer();
 }
 
-export async function uploadPrivateProfileImage(userId: string, scope: "self" | "recipients", file: File) {
+export async function uploadPrivateProfileImage(userId: string, scope: PrivateImageScope, file: File) {
   const extension = validateImage(file);
   const path = `${userId}/${scope}/${randomUUID()}.${extension}`;
-  await uploadImage("profile-images", path, Buffer.from(await file.arrayBuffer()), file.type);
+  await reservePrivateImage(userId, scope, path, file.size);
+
+  try {
+    await uploadImage(PRIVATE_IMAGE_BUCKET, path, Buffer.from(await file.arrayBuffer()), file.type);
+  } catch (error) {
+    await finishPrivateImage(userId, path, false).catch(() => undefined);
+    throw error;
+  }
+
+  try {
+    await finishPrivateImage(userId, path, true);
+  } catch (error) {
+    await createAdminClient().storage.from(PRIVATE_IMAGE_BUCKET).remove([path]);
+    await finishPrivateImage(userId, path, false).catch(() => undefined);
+    throw error;
+  }
+
   return path;
+}
+
+export async function removePrivateProfileImage(userId: string, path?: string | null) {
+  if (!path || !path.startsWith(`${userId}/`)) return;
+
+  const { error: storageError } = await createAdminClient()
+    .storage
+    .from(PRIVATE_IMAGE_BUCKET)
+    .remove([path]);
+  if (storageError) throw new Error(storageError.message);
+
+  const { error: ledgerError } = await createAdminClient().rpc("delete_media_upload", {
+    p_user_id: userId,
+    p_bucket_id: PRIVATE_IMAGE_BUCKET,
+    p_object_path: path
+  });
+  if (ledgerError) throw new Error(ledgerError.message);
 }
 
 export async function uploadPublicProductImage(userId: string, file: File, removeBackground = true) {
@@ -120,7 +192,7 @@ export async function uploadPublicProductImage(userId: string, file: File, remov
 
 export async function getPrivateProfileImageUrl(path?: string | null) {
   if (!path) return null;
-  const { data, error } = await createAdminClient().storage.from("profile-images").createSignedUrl(path, 3600);
+  const { data, error } = await createAdminClient().storage.from(PRIVATE_IMAGE_BUCKET).createSignedUrl(path, 3600);
   if (error) return null;
   return data.signedUrl;
 }

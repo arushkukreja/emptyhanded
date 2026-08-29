@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createAdminClient, hasSupabaseAdminKey } from "@/lib/supabase/admin";
 import { trackValidationEvent } from "@/lib/validation-events";
 
 export async function GET(request: Request) {
@@ -16,7 +16,7 @@ export async function GET(request: Request) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
       const { data: { user } } = await supabase.auth.getUser();
-      if (user?.email && process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      if (user?.email && hasSupabaseAdminKey()) {
         const now = new Date().toISOString();
         await createAdminClient()
           .from("launch_leads")
