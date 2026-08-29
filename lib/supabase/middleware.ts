@@ -4,6 +4,7 @@ import { getSupabasePublicKey } from "./config";
 
 const PROTECTED_PAGE_PREFIXES = ["/dashboard", "/events", "/recommendations", "/email", "/upgrade"];
 const PROTECTED_API_PREFIXES = ["/api/stripe/checkout", "/api/stripe/portal"];
+const PUBLIC_PAGE_PATHS = new Set(["/email/unsubscribe"]);
 
 function matchesPrefix(pathname: string, prefixes: string[]) {
   return prefixes.some(prefix => pathname === prefix || pathname.startsWith(`${prefix}/`));
@@ -29,7 +30,7 @@ function loginRedirect(request: NextRequest, response: NextResponse) {
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
   const { pathname } = request.nextUrl;
-  const isProtectedPage = matchesPrefix(pathname, PROTECTED_PAGE_PREFIXES);
+  const isProtectedPage = !PUBLIC_PAGE_PATHS.has(pathname) && matchesPrefix(pathname, PROTECTED_PAGE_PREFIXES);
   const isProtectedApi = matchesPrefix(pathname, PROTECTED_API_PREFIXES);
 
   const hasSessionCookie = request.cookies
