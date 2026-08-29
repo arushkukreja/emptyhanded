@@ -7,6 +7,7 @@ import { amazonUrlFor } from "@/lib/recommendations/save";
 import { renderReminderEmail } from "@/lib/email/reminder";
 import { OCCASION_EMOJI, OCCASION_LABEL } from "@/lib/occasions";
 import { getProductImage } from "@/lib/product-images";
+import { createOneClickUnsubscribeUrl, createUnsubscribeUrl } from "@/lib/email/unsubscribe";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -50,7 +51,7 @@ export async function GET(request: Request) {
 
     const { data: userRow } = await admin
       .from("users")
-      .select("id, email")
+      .select("id, email, email_reminders_enabled")
       .eq("id", ev.user_id)
       .maybeSingle();
     if (!userRow) {
@@ -59,6 +60,10 @@ export async function GET(request: Request) {
     }
     if (!userRow.email) {
       results.push({ event_id: ev.id, status: "skipped", reason: "no_email" });
+      continue;
+    }
+    if (userRow.email_reminders_enabled === false) {
+      results.push({ event_id: ev.id, status: "skipped", reason: "reminders_disabled" });
       continue;
     }
 
@@ -130,6 +135,8 @@ export async function GET(request: Request) {
       })()
     }));
 
+    const unsubscribeUrl = createUnsubscribeUrl(appUrl, userRow.id);
+    const oneClickUnsubscribeUrl = createOneClickUnsubscribeUrl(appUrl, userRow.id);
     const { subject, html } = renderReminderEmail({
       recipient_name: ev.recipient_name,
       occasion_label: OCCASION_LABEL[ev.occasion_type] ?? ev.occasion_type,
@@ -137,7 +144,8 @@ export async function GET(request: Request) {
       formatted_date: format(parseISO(ev.event_date), "MMMM d, yyyy"),
       recommendations: emailRecommendations,
       app_url: appUrl,
-      event_id: ev.id
+      event_id: ev.id,
+      unsubscribe_url: unsubscribeUrl
     });
 
     try {
@@ -146,6 +154,10 @@ export async function GET(request: Request) {
         to: userRow.email,
         subject,
         html,
+        headers: {
+          "List-Unsubscribe": `<${oneClickUnsubscribeUrl}>`,
+          "List-Unsubscribe-Post": "List-Unsubscribe=One-Click"
+        },
         ...(emailReplyTo ? { replyTo: emailReplyTo } : {})
       }, {
         idempotencyKey: `event-reminder-${ev.id}-${target}`

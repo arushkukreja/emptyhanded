@@ -51,7 +51,7 @@ export default async function EmailPreviewPage() {
     <div className="bg-[#eeeae3] px-3 py-7 pb-16 min-[390px]:px-4 sm:px-8 sm:py-10 sm:pb-24">
       <div className="mx-auto mb-4 flex max-w-xl flex-col items-start gap-1 text-[11px] text-[#6b6358] sm:flex-row sm:items-center sm:gap-2 sm:text-xs"><span className="inline-flex items-center gap-2"><Mail size={14} /> Inbox · Reminder preview</span><span className="sm:ml-auto">From: {sender}</span></div>
       <article className="mx-auto max-w-xl overflow-hidden rounded-[18px] border border-cream-200 bg-white shadow-lift sm:rounded-[22px]">
-        <header className="border-b border-cream-200 px-5 py-4 sm:px-7"><p className="text-[10px] font-bold tracking-[0.12em] text-primary-400">SUBJECT</p><p className="mt-1 text-sm font-bold leading-5 text-primary sm:text-base">{event.recipient_name}&apos;s {occasion.toLowerCase()} is in 7 days 🎁</p></header>
+        <header className="border-b border-cream-200 px-5 py-4 sm:px-7"><p className="text-[10px] font-bold tracking-[0.12em] text-primary-400">SUBJECT</p><p className="mt-1 text-sm font-bold leading-5 text-primary sm:text-base">{recipientFirstName}’s {occasion.toLowerCase()} is next week</p></header>
         <div className="flex items-center justify-center bg-primary px-5 py-5 text-center sm:px-7"><Logo inverted /></div>
         <div className="px-5 py-7 sm:px-9 sm:py-9">
           <div className="text-center"><span className="inline-flex max-w-full items-center gap-2 rounded-2xl bg-accent-100 px-3 py-1.5 text-[10px] font-bold leading-4 tracking-[0.05em] text-accent-700"><CalendarDays size={13} className="shrink-0" /> {recipientFirstName.toUpperCase()}&apos;S {occasion.toUpperCase()} · 7 DAYS</span></div>
@@ -63,7 +63,7 @@ export default async function EmailPreviewPage() {
           })}</div> : <div className="mt-7 rounded-2xl bg-cream p-5 text-sm text-primary-500">Generate recommendations for this occasion to preview the picks that will appear here.</div>}
           <div className="mt-8 text-center"><Link href={`/events/${event.id}`} className="text-sm font-semibold text-accent-700 underline decoration-accent-300 underline-offset-4">See all picks →</Link></div>
         </div>
-        <footer className="bg-cream-100 px-5 py-6 text-center sm:px-7 sm:py-7"><Logo /><p className="mt-4 text-[11px] leading-5 text-primary-400">You added {event.recipient_name} to your emptyhanded calendar.<br />Some links may earn us a commission.</p></footer>
+        <footer className="bg-cream-100 px-5 py-6 text-center sm:px-7 sm:py-7"><Logo /><p className="mt-4 text-[11px] leading-5 text-primary-400">You added {event.recipient_name} to your emptyhanded calendar.<br />Some links may earn us a commission.</p><Link href="/profile" className="mt-2 inline-block text-[11px] text-primary-400 underline underline-offset-2">Unsubscribe from reminder emails</Link></footer>
       </article>
     </div>
   );

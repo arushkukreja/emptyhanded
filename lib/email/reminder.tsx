@@ -14,12 +14,14 @@ interface ReminderProps {
   recommendations: ReminderRec[];
   app_url: string;
   event_id: string;
+  unsubscribe_url: string;
 }
 
 export function renderReminderEmail(p: ReminderProps): { subject: string; html: string } {
-  const subject = `${p.recipient_name}'s ${p.occasion_label.toLowerCase()} is in 7 days 🎁`;
   const firstName = p.recipient_name.split(" ")[0];
-  const preheader = `Three gift ideas for ${firstName}, ready for next week.`;
+  const subject = `${firstName}’s ${p.occasion_label.toLowerCase()} is next week`;
+  const preheader = "Three thoughtful gift picks, ready when you are.";
+  const previewPadding = "&nbsp;&zwnj;".repeat(100);
   const appUrl = p.app_url.replace(/\/$/, "");
   const recsHtml = p.recommendations.map((recommendation, index) => `
     <tr><td style="padding:0 0 12px;">
@@ -86,7 +88,7 @@ export function renderReminderEmail(p: ReminderProps): { subject: string; html: 
     [data-ogsc] .email-footer { background-color:#172033 !important; border-top-color:#334155 !important; }
   </style>
 </head><body class="email-page" style="margin:0;padding:0;background-color:#EEEAE3;font-family:'Plus Jakarta Sans',Arial,sans-serif;color:#0F172A;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;">
-  <div style="display:none!important;visibility:hidden;opacity:0;color:transparent;height:0;width:0;max-height:0;max-width:0;overflow:hidden;mso-hide:all;">${escapeHtml(preheader)}&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;</div>
+  <div style="display:none!important;visibility:hidden;opacity:0;color:transparent;height:0;width:0;max-height:0;max-width:0;overflow:hidden;mso-hide:all;">${escapeHtml(preheader)}${previewPadding}</div>
   <table class="email-shell" role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#EEEAE3" style="width:100%;background-color:#EEEAE3;padding:32px 12px;">
     <tr><td align="center">
       <table class="email-card" role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#FFFFFF" style="max-width:560px;width:100%;background-color:#FFFFFF;border-radius:18px;overflow:hidden;border:1px solid #E7E5E0;box-shadow:0 12px 32px rgba(15,23,42,.12);">
@@ -103,6 +105,7 @@ export function renderReminderEmail(p: ReminderProps): { subject: string; html: 
         <tr><td class="email-footer" align="center" bgcolor="#F5F4F1" style="padding:26px 28px;background-color:#F5F4F1;border-top:1px solid #EFEDE8;">
           <div class="email-footer-brand" style="font-family:Georgia,serif;font-size:19px;font-weight:700;letter-spacing:-.04em;color:#0F172A;">emptyhanded<span style="color:#F59E0B;">.</span></div>
           <p class="email-footer-copy" style="margin:12px 0 0;font-size:10px;line-height:1.6;color:#64748B;">You added ${escapeHtml(p.recipient_name)} to your emptyhanded calendar.<br>Some links may earn us a commission.</p>
+          <p style="margin:10px 0 0;font-size:10px;line-height:1.6;"><a href="${escapeHtml(p.unsubscribe_url)}" style="color:#64748B;text-decoration:underline;text-underline-offset:2px;">Unsubscribe from reminder emails</a></p>
         </td></tr>
       </table>
     </td></tr>
