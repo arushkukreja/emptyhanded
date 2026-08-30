@@ -84,16 +84,16 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
           <div className="absolute left-[38%] top-[24%] h-[420px] w-[420px] rounded-full bg-[radial-gradient(circle,rgba(254,243,199,.85),transparent_68%)]" />
         </div>
 
-        <div className="relative z-10 mx-auto grid max-w-7xl items-center gap-9 px-5 py-10 sm:grid-cols-[1.03fr_.97fr] sm:gap-5 sm:px-8 sm:py-12 lg:gap-12 lg:px-10 lg:py-16">
+        <div className="relative z-10 mx-auto grid max-w-7xl items-center gap-7 px-5 py-8 sm:grid-cols-[1.03fr_.97fr] sm:gap-5 sm:px-8 sm:py-12 lg:gap-12 lg:px-10 lg:py-16">
           <div className="animate-fade-up">
             <h1 className="display-type max-w-3xl text-[clamp(2.35rem,11vw,4.8rem)] font-black leading-[.95] tracking-[-0.05em] text-primary sm:text-[clamp(2.7rem,5.4vw,4.8rem)]">
               Never show up empty handed <em className="font-bold text-accent">again.</em>
             </h1>
-            <p className="mt-5 max-w-xl text-sm leading-6 text-primary-600 lg:text-lg lg:leading-8">
-              Add the people who matter. We learn what they love. Before every birthday, anniversary, or shower, thoughtful gift ideas arrive right on time.
+            <p className="mt-4 max-w-xl text-sm leading-6 text-primary-600 sm:mt-5 lg:text-lg lg:leading-8">
+              Add the people who matter. We learn what they love, then send thoughtful gift ideas right on time.
             </p>
 
-            <form id="start" action={user ? startHref : "/api/leads"} method={user ? "get" : "post"} className="mt-7 flex max-w-lg flex-col items-stretch gap-1.5 rounded-[24px] border border-cream-200 bg-white/90 p-1.5 shadow-lift backdrop-blur min-[390px]:flex-row min-[390px]:items-center min-[390px]:gap-1 min-[390px]:rounded-full sm:gap-2">
+            <form id="start" action={user ? startHref : "/api/leads"} method={user ? "get" : "post"} className="mt-5 flex max-w-lg flex-col items-stretch gap-1.5 rounded-[24px] border border-cream-200 bg-white/90 p-1.5 shadow-lift backdrop-blur min-[390px]:flex-row min-[390px]:items-center min-[390px]:gap-1 min-[390px]:rounded-full sm:mt-7 sm:gap-2">
               {!user && <>
                 <input name="email" type="email" required autoComplete="email" aria-label="Email address" placeholder="you@goodfriend.com" className="min-w-0 flex-1 bg-transparent px-4 py-3 text-sm text-primary outline-none placeholder:text-primary-400" />
                 <input type="hidden" name="source" value={campaign.source ?? "landing"} />
@@ -108,14 +108,14 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
                 {user ? "Open your calendar" : "Start free"} <ArrowRight size={16} />
               </button>
             </form>
-            <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-xs font-medium text-primary-400">
+            <div className="mt-3 flex flex-wrap gap-x-6 gap-y-2 text-xs font-medium text-primary-400 sm:mt-4">
               <span className="inline-flex items-center gap-1.5"><Check size={14} className="text-accent-600" /> Completely free during early access</span>
               <span className="inline-flex items-center gap-1.5"><Check size={14} className="text-accent-600" /> No card required</span>
             </div>
-            {!user && <p className="mt-3 max-w-lg text-[11px] leading-5 text-primary-400">By continuing, you agree to the <Link href="/terms" className="underline">Terms</Link> and <Link href="/privacy" className="underline">Privacy Policy</Link> and may receive occasional product updates. Unsubscribe anytime.</p>}
+            {!user && <p className="mt-2 max-w-lg text-[11px] leading-5 text-primary-400 sm:mt-3">By continuing, you agree to our <Link href="/terms" className="underline">Terms</Link> and <Link href="/privacy" className="underline">Privacy Policy</Link>.</p>}
           </div>
 
-          <div className="relative mx-auto flex h-[470px] w-full max-w-[510px] flex-col gap-4 min-[390px]:h-[500px] sm:h-[535px] sm:gap-6 lg:h-[550px]">
+          <div className="relative mx-auto flex w-full max-w-[510px] flex-col gap-3 sm:gap-6">
             <div className="animate-card-float-back shrink-0 rounded-[22px] border border-cream-200 bg-white/85 p-4 shadow-soft backdrop-blur">
               <p className="text-[10px] font-bold tracking-[0.14em] text-primary-400">NEXT UP</p>
               <div className="mt-3 flex items-center gap-3">
@@ -124,7 +124,7 @@ export default async function LandingPage({ searchParams }: { searchParams: Prom
               </div>
             </div>
 
-            <div className="animate-card-float flex min-h-0 flex-1 flex-col overflow-hidden rounded-[22px] border border-cream-200 bg-white p-4 shadow-[0_24px_70px_-20px_rgba(245,158,11,.36)] sm:rounded-[24px] sm:p-5 lg:p-6">
+            <div className="animate-card-float flex flex-col overflow-hidden rounded-[22px] border border-cream-200 bg-white p-4 shadow-[0_24px_70px_-20px_rgba(245,158,11,.36)] sm:rounded-[24px] sm:p-5 lg:p-6">
               <div className="flex items-center justify-between gap-4">
                 <p className="text-[10px] font-bold tracking-[0.14em] text-primary-400">UPCOMING</p>
                 <span className="rounded-full bg-accent px-3 py-1.5 text-[11px] font-extrabold text-primary">⏰ in 7 days</span>
