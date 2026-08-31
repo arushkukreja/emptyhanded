@@ -1,11 +1,13 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import GoogleAuthButton from "@/components/GoogleAuthButton";
 import { createClient } from "@/lib/supabase/client";
+
+const RESEND_COOLDOWN_SECONDS = 60;
 
 export default function SignupPage(props: { searchParams: Promise<{ email?: string; next?: string; lead?: string }> }) {
   const searchParams = use(props.searchParams);
@@ -17,16 +19,26 @@ export default function SignupPage(props: { searchParams: Promise<{ email?: stri
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [resending, setResending] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const [resendMessage, setResendMessage] = useState<string | null>(null);
   const requestedNext = searchParams.next;
   const safeNext = requestedNext?.startsWith("/") && !requestedNext.startsWith("//") ? requestedNext : "/dashboard";
+
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const timeout = window.setTimeout(() => setResendCooldown(current => current - 1), 1000);
+    return () => window.clearTimeout(timeout);
+  }, [resendCooldown]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setLoading(true);
     const supabase = createClient();
+    const normalizedEmail = email.trim();
     const { data, error } = await supabase.auth.signUp({
-      email,
+      email: normalizedEmail,
       password,
       options: {
         emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(safeNext)}`,
@@ -38,12 +50,42 @@ export default function SignupPage(props: { searchParams: Promise<{ email?: stri
       setError(error.message);
       return;
     }
+    setEmail(normalizedEmail);
     if (data.session) {
       router.push(safeNext);
       router.refresh();
     } else {
       setDone(true);
+      setResendCooldown(RESEND_COOLDOWN_SECONDS);
     }
+  }
+
+  async function onResend() {
+    if (resending || resendCooldown > 0) return;
+
+    setResending(true);
+    setResendMessage(null);
+    const supabase = createClient();
+    const { error } = await supabase.auth.resend({
+      type: "signup",
+      email,
+      options: { emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(safeNext)}` }
+    });
+    setResending(false);
+
+    if (error) {
+      const rateLimited = error.status === 429 || error.code?.includes("rate_limit");
+      if (rateLimited) setResendCooldown(RESEND_COOLDOWN_SECONDS);
+      setResendMessage(
+        rateLimited
+          ? "Please wait a little longer before requesting another email."
+          : "We couldn't resend the confirmation email. Try again in a moment."
+      );
+      return;
+    }
+
+    setResendCooldown(RESEND_COOLDOWN_SECONDS);
+    setResendMessage("If this address still needs confirmation, another link is on the way.");
   }
 
   if (done) {
@@ -52,8 +94,29 @@ export default function SignupPage(props: { searchParams: Promise<{ email?: stri
         <p className="eyebrow">One last step</p>
         <h1 className="display-type mt-2 text-4xl font-black text-primary">Check your email.</h1>
         <p className="mt-3 leading-7 text-primary-500">
-          We sent a confirmation link to <strong>{email}</strong>. Click it to finish signing up.
+          If <strong>{email}</strong> is a new email-and-password account, a confirmation link is on the way.
         </p>
+        <p className="mt-3 text-sm leading-6 text-primary-500">
+          Already confirmed this address or used Google before? Sign in with that method instead. Supabase keeps this response intentionally private, so we can&apos;t reveal whether an account already exists.
+        </p>
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+          <button
+            type="button"
+            onClick={onResend}
+            disabled={resending || resendCooldown > 0}
+            className="flex h-[48px] flex-1 items-center justify-center rounded-full bg-primary px-5 text-sm font-bold text-white transition hover:bg-primary-800 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {resending ? "Sending..." : resendCooldown > 0 ? `Resend in ${resendCooldown}s` : "Resend confirmation"}
+          </button>
+          <Link
+            href={`/login?email=${encodeURIComponent(email)}&next=${encodeURIComponent(safeNext)}`}
+            className="flex h-[48px] flex-1 items-center justify-center rounded-full border border-primary/15 px-5 text-sm font-bold text-primary transition hover:bg-cream-100"
+          >
+            Go to sign in
+          </Link>
+        </div>
+        {resendMessage && <p role="status" className="mt-4 rounded-xl bg-cream-100 px-4 py-3 text-sm text-primary-600">{resendMessage}</p>}
+        <p className="mt-4 text-xs leading-5 text-primary-400">If you used Google originally, continue with Google. To create a password for an existing address, choose Forgot password on the sign-in page.</p>
       </>
     );
   }

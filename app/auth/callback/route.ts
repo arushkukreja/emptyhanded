@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
+import { completeSignin } from "@/lib/auth/complete-signin";
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient, hasSupabaseAdminKey } from "@/lib/supabase/admin";
-import { trackValidationEvent } from "@/lib/validation-events";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
@@ -16,14 +15,7 @@ export async function GET(request: Request) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
       const { data: { user } } = await supabase.auth.getUser();
-      if (user?.email && hasSupabaseAdminKey()) {
-        const now = new Date().toISOString();
-        await createAdminClient()
-          .from("launch_leads")
-          .update({ converted_user_id: user.id, converted_at: now, updated_at: now })
-          .eq("email", user.email.trim().toLowerCase());
-        await trackValidationEvent(user.id, "account_created");
-      }
+      if (user) await completeSignin(user);
       return NextResponse.redirect(`${redirectOrigin}${next}`);
     }
   }

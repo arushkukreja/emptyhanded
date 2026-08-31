@@ -12,7 +12,13 @@ export default function LoginPage(props: { searchParams: Promise<{ error?: strin
   const router = useRouter();
   const [email, setEmail] = useState(searchParams.email ?? "");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(searchParams.error === "auth_callback" ? "We couldn't complete that sign-in. Please try again." : null);
+  const [error, setError] = useState<string | null>(
+    searchParams.error === "auth_callback"
+      ? "We couldn't complete that sign-in. Please try again."
+      : searchParams.error === "confirmation_failed"
+        ? "That confirmation link is invalid or expired. Sign up again to request a fresh link."
+        : null
+  );
   const [loading, setLoading] = useState(false);
   const requestedNext = searchParams.next;
   const safeNext = requestedNext?.startsWith("/") && !requestedNext.startsWith("//") ? requestedNext : "/dashboard";
@@ -70,6 +76,7 @@ export default function LoginPage(props: { searchParams: Promise<{ error?: strin
         <button type="submit" disabled={loading} className="flex h-[58px] w-full items-center justify-center gap-2 rounded-full bg-primary px-6 text-base font-bold text-white transition hover:bg-primary-800 disabled:opacity-50">{loading ? "Signing in..." : <>Sign in <ArrowRight size={18} /></>}</button>
       </form>
       <p className="mt-5 text-center text-sm text-primary-600">No account? <Link href="/signup" className="font-bold text-primary underline underline-offset-4">Sign up free</Link></p>
+      <p className="mt-3 text-center text-xs leading-5 text-primary-400">Created your account with Google? Continue with Google above. If you need a password, enter your email and choose Forgot password.</p>
       <p className="mt-4 text-center text-[11px] leading-4 text-primary-400">By signing in you agree to our <Link href="/terms" className="text-primary-600 underline">Terms</Link> and <Link href="/privacy" className="text-primary-600 underline">Privacy Policy</Link>.</p>
     </div>
   );
